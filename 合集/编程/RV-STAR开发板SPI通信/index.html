@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ddg-302.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="使用RV-STAR开发板库函数编程进行最基础的SPI通信。详细解读官网上的SPI通信例程，适用于初次接触SPI与嵌入式开发的同志。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RV-STAR开发板库函数编程——SPI通信">
+<meta property="og:url" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/index.html">
+<meta property="og:site_name" content="德依安-BLOG">
+<meta property="og:description" content="使用RV-STAR开发板库函数编程进行最基础的SPI通信。详细解读官网上的SPI通信例程，适用于初次接触SPI与嵌入式开发的同志。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519180540056.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181116970.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181123484.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181133572.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181429590.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519202439254.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519203017685.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519203807731.png">
+<meta property="article:published_time" content="2022-05-05T09:29:50.000Z">
+<meta property="article:modified_time" content="2022-05-19T13:02:38.640Z">
+<meta property="article:author" content="德依安">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="技术">
+<meta property="article:tag" content="嵌入式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519180540056.png">
+
+<link rel="canonical" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>RV-STAR开发板库函数编程——SPI通信 | 德依安-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">德依安-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">奇迹与魔法都是存在的</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">15</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">9</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">14</span></a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-website-404">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>本站404</a>
+
+  </li>
+        <li class="menu-item menu-item-bangumi">
+
+    <a href="/bangumis/" rel="section"><i class="fa fa-tv fa-fw"></i>动画</a>
+
+  </li>
+        <li class="menu-item menu-item-cinema">
+
+    <a href="/cinemas/" rel="section"><i class="fa fa-film fa-fw"></i>电影</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dd_avatar_chun.jpg">
+      <meta itemprop="name" content="德依安">
+      <meta itemprop="description" content="记录一些关于学习、生活、爱好的个人网站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="德依安-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RV-STAR开发板库函数编程——SPI通信
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-05-05 17:29:50" itemprop="dateCreated datePublished" datetime="2022-05-05T17:29:50+08:00">2022-05-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-05-19 21:02:38" itemprop="dateModified" datetime="2022-05-19T21:02:38+08:00">2022-05-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">编程</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/" class="post-meta-item leancloud_visitors" data-flag-title="RV-STAR开发板库函数编程——SPI通信" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>11 分钟</span>
+            </span>
+            <div class="post-description">使用RV-STAR开发板库函数编程进行最基础的SPI通信。详细解读官网上的SPI通信例程，适用于初次接触SPI与嵌入式开发的同志。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="本文参考资料"><a href="#本文参考资料" class="headerlink" title="本文参考资料"></a>本文参考资料</h2><div class="note info">
+            <ul><li><p>芯来科技RVMCU官方论坛：<a target="_blank" rel="noopener" href="https://www.rvmcu.com/column-topic-id-595.html">RVMCU课堂「15」: 手把手教你玩转RVSTAR—SPI总线通信篇__专栏_RISC-V MCU中文社区</a></p><ul><li><strong>必看教程，本文将以该示例程序作为基础作进一步解释</strong></li></ul></li><li><p>RVSTAR开发板用户指南：<a target="_blank" rel="noopener" href="https://www.rvmcu.com/uploadfile/pdf/0/0/531.pdf">531.pdf (rvmcu.com)</a></p><ul><li>用于查看基本的GPIO复用信息。</li></ul></li><li><p>GD32VF103固件库用户指南：</p><ul><li>用于查看库函数定义。</li></ul></li><li><p>GD32VF103中文手册：<a target="_blank" rel="noopener" href="https://www.rvmcu.com/uploadfile/pdf/0/0/11.pdf">11.pdf (rvmcu.com)</a></p><ul><li>用于查看、学习各项功能的具体实现。</li></ul></li><li><p>RVSTAR开发板原理图：<a target="_blank" rel="noopener" href="https://www.rvmcu.com/uploadfile/pdf/0/0/235.pdf">Job1 (rvmcu.com)</a></p><ul><li>最详细的引脚功能描述，可以查看到所有你需要的外设信息。例如板载LED，板载按钮的端口号和复用在开发板用户指南中并没有给出，此时需要查看原理图获取信息。</li></ul></li></ul>
+          </div>
+
+<h2 id="SPI-基本原理"><a href="#SPI-基本原理" class="headerlink" title="SPI 基本原理"></a>SPI 基本原理</h2><p>SPI是一种串口通信协议，可以在四种模式下运行：主机发送、主机接收、从机发送、从机接收。</p>
+<h3 id="通信方式概述"><a href="#通信方式概述" class="headerlink" title="通信方式概述"></a>通信方式概述</h3><p>SPI协议通信需要4根数据线，分别为：</p>
+<ol>
+<li><code>MOSI - Master Output Slave Input</code> 主机发送，从机输入</li>
+<li><code>MISO - Master Input Slave Output</code> 从机发送，主机输入</li>
+<li><code>SCLK - Serial Clock </code> 时钟信号，由<strong>主机产生</strong></li>
+<li><code>cs - Chip Select</code> 片选信号(从设备使能信号)，由<strong>主机控制</strong></li>
+</ol>
+<div class="note primary">
+            <p>SPI通信步骤：</p><ol><li>主机控制<code>CS</code>输出低电平选中特定的从机（从机只有在<code>CS</code>为低时才接收信息）</li><li>主机通过<code>SCLK</code>端口开始产生时钟信号，这个时钟信号将同时作为双发收发数据的时钟信号</li><li>主机从<strong>主机的<code>MOSI</code>口</strong>发出数据到从<strong>机的<code>MOSI</code>口</strong></li><li>从机从<strong>从机的<code>MISO</code>口</strong>发出数据到<strong>主机的<code>MISO</code>口</strong></li></ol>
+          </div>
+
+<p>由上述可知，<code>MOSI</code>和<code>MISO</code>口并非一定是输入或输出口，而是根据设备是主机还是从机决定的。</p>
+<p><em>有时在一些设备上这些端口的名称表述上可能会有些不同，但是功能上是相同的。</em></p>
+<div class="note warning">
+            <p>SPI发送没有复杂的数据格式，没有数据报头，没有数据报尾。<br>如果要发送8位数据，那么发送和接收到的就是简单的8个二进制位。信息发送的同步方式由主机的使能信号和时钟信号控制。</p>
+          </div>  
+
+<h3 id="全双工运行模式"><a href="#全双工运行模式" class="headerlink" title="全双工运行模式"></a>全双工运行模式</h3><p><img src="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519180540056.png" alt="image-20220519180540056"></p>
+<p>在全双工下，需要同时用到四根线，这也是最标准的SPI通信方式，主从双方通过上述通信步骤通信</p>
+<h3 id="单工模式"><a href="#单工模式" class="headerlink" title="单工模式"></a>单工模式</h3><p><img src="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181116970.png" alt="image-20220519181116970"></p>
+<p><img src="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181123484.png" alt="image-20220519181123484"></p>
+<p><img src="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181133572.png" alt="image-20220519181133572"></p>
+<p>以上各种方式都是只能单向通信，或同时只能单方发送的工作模式，在这种工作模式下只需要用到三根线，但是相比全双工模式会有一定的限制，在使用一些功能单一的从机时可能会用到。</p>
+<h2 id="RVSTAR的SPI发送与接收流程（只介绍主机模式）"><a href="#RVSTAR的SPI发送与接收流程（只介绍主机模式）" class="headerlink" title="RVSTAR的SPI发送与接收流程（只介绍主机模式）"></a>RVSTAR的SPI发送与接收流程（只介绍主机模式）</h2><h3 id="SPI结构图"><a href="#SPI结构图" class="headerlink" title="SPI结构图"></a>SPI结构图</h3><p><img src="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181429590.png" alt="image-20220519181429590"></p>
+<div class="note info">
+            <p>注意，软件应当通过读写SPI_DATA寄存器来将数据存入<code>发送缓冲区</code>和读取<code>接收缓冲区</code>，在下文中为方便理解，全部表述为「写<code>发送缓冲区</code>」和「读<code>接收缓冲区</code>」</p>
+          </div>
+
+<h3 id="主机模式发送流程"><a href="#主机模式发送流程" class="headerlink" title="主机模式发送流程"></a>主机模式发送流程</h3><p>初始化完成后，SPI使能模块为空闲状态。当软件写一个数据到<code>发送缓冲区</code>后，发送过程开始。</p>
+<p>SPI开始发送数据帧时，这个数据帧将加载到<code>移位寄存器</code>中，当<code>移位寄存器</code>中的<strong>第一个位（bit）</strong>发出后，TBE（发送缓冲区空信号）位置1。<strong>TBE置1说明<code>发送缓冲区</code>为空</strong>，如果还要继续发送数据，则此时可以向<code>发送缓冲区</code>写数据。</p>
+<h3 id="主机接收流程"><a href="#主机接收流程" class="headerlink" title="主机接收流程"></a>主机接收流程</h3><p>在最后一个采样时钟边沿后，接收到的数据从<code>移位寄存器</code>存入到<code>接收缓冲区</code>，且RBNE（接收缓冲区非空）位置1。RBNE置1说明<code>接收缓冲区</code>满，软件可以通过读<code>接收缓冲区</code>读取接收到的数据，<strong>当软件读取接收缓冲区时，会自动清除RBNE标志位</strong>。</p>
+<div class="note error">
+            <p><strong>在全双工主机模式下，仅当<code>发送缓冲区</code>非空时，硬件才接收下一个数据帧。</strong></p><p>注意上文这段话非常重要，意思是说SPI在全双工通信时，如果想要接收信息，必须要让**<code>发送缓冲区</code>**非空！<br>如果在后续写程序的时候没有注意这一点会导致读取异常，这一点在官方的示例程序中没有展示，也没有提及。</p>
+          </div>
+
+<h3 id="主机收发流程总结"><a href="#主机收发流程总结" class="headerlink" title="主机收发流程总结"></a>主机收发流程总结</h3><p>主机发送信息且不需要接收回复时：</p>
+<ol>
+<li>检查TBE，等待其为1</li>
+<li>数据写入<code>发送缓冲区</code></li>
+<li>等待RBNE为1</li>
+<li>读<code>接受缓冲区</code>以清空RBNE标志位</li>
+</ol>
+<p>主机发送信息且需要接收回复时：</p>
+<ol>
+<li>检查TBE，等待其为1</li>
+<li>数据写入<code>发送缓冲区</code></li>
+<li>等待RBNE为1</li>
+<li>读<code>接受缓冲区</code>以清空RBNE标志位</li>
+<li><strong>把一个废数据（或者对从机来说是空指令的数据，一般为0x0）写入<code>发送缓冲区</code></strong></li>
+<li><strong>等待RBNE为1</strong></li>
+<li><strong>读<code>接受缓冲区</code>以获得返回数据</strong></li>
+</ol>
+<p>注意主机发送一条消息后，如果还要获得回复，那么必须要再写入一条废数据（空指令）来让<code>发送缓冲区</code>非空，从而让硬件能接收返回的数据帧。</p>
+<h2 id="RVSTAR使用SPI编程实现"><a href="#RVSTAR使用SPI编程实现" class="headerlink" title="RVSTAR使用SPI编程实现"></a>RVSTAR使用SPI编程实现</h2><p>首先说明，SPI并非很复杂的通信协议，所以在掌握了上文描述的SPI通信原理后，完全可以通过简单地GPIO手动控制时钟翻转和数据输入输出，但是这里介绍由芯片提供的SPI功能实现。</p>
+<h3 id="外设配置"><a href="#外设配置" class="headerlink" title="外设配置"></a>外设配置</h3><p>首先对SPI外设进行配置：</p>
+<ol>
+<li>开启GPIO时钟</li>
+<li>开启外设时钟复用</li>
+<li>开启SPI时钟</li>
+<li>GPIO初始化为复用模式</li>
+</ol>
+<p>查阅手册可知PA5/PA6/PA7可以复用为SPI功能</p>
+<p><img src="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519202439254.png" alt="image-20220519202439254"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">   rcu_periph_clock_enable(RCU_GPIOA); <span class="comment">// GPIOA时钟</span></span><br><span class="line">   rcu_periph_clock_enable(RCU_AF); <span class="comment">// 复用时钟</span></span><br><span class="line">   rcu_periph_clock_enable(RCU_SPI0); <span class="comment">// SPI0时钟</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// PA5和PA7作为输出口，设置为O推挽复用输出</span></span><br><span class="line">   gpio_init(GPIOA, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_5 | GPIO_PIN_7);</span><br><span class="line"><span class="comment">// PA6作为主机输入，设置为浮空模式</span></span><br><span class="line">   gpio_init(GPIOA, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_6);</span><br></pre></td></tr></table></figure>
+
+<h3 id="SPI配置"><a href="#SPI配置" class="headerlink" title="SPI配置"></a>SPI配置</h3><p>SPI配置主要是要配合从机的工作方式，例如从机的信号读取边沿、从机能接受的信息传输速率、从机的大小端接收方式等等。其配置方式由结构体<code>spi_parameter_struct</code>决定，其属性如下：</p>
+<p><img src="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519203017685.png" alt="image-20220519203017685"></p>
+<p>这里解释几个比较不好理解的参数：</p>
+<ul>
+<li>frame_size<ul>
+<li>数据帧格式，可以为8或16。注意到芯片提供的SPI移位寄存器和输入输出缓冲区都是16位的，如果我们要发送8位的数据，有些人可能会担心是否需要在程序里对数据进行处理，以适配16位。答案是不需要，只要在数据帧格式里设置完成后就不需要程序员再去关心这个了。</li>
+</ul>
+</li>
+<li>nss<ul>
+<li>nss就是上文提到的cs从机片选，软件模式指由程序员手动控制GPIO，或直接拉低来控制从机的cs；硬件模式则是在发送时由硬件自动控制片选信号。软件模式的好处是可以由一组SPI连接多个从机，通过软件片选来选择从机。详细见文档。</li>
+</ul>
+</li>
+<li>clock_polarity_phase<ul>
+<li><img src="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519203807731.png" alt="image-20220519203807731"><br>更多信息查阅其他资料</li>
+</ul>
+</li>
+<li>endian<ul>
+<li>注意这里指的是移位寄存器先发送高位（MSB）还是低位(LSB)，如果从机希望接收到的第一个bit是高位，那就选择MSB，否则选择LSB</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">spi_struct_para_init(&amp;spi_init_struct); <span class="comment">// 库函数中的结构体初始化函数</span></span><br><span class="line"></span><br><span class="line">   spi_init_struct.trans_mode = SPI_TRANSMODE_FULLDUPLEX; <span class="comment">// 全双工模式</span></span><br><span class="line">   spi_init_struct.device_mode = SPI_MASTER; <span class="comment">// 主机模式</span></span><br><span class="line">   spi_init_struct.frame_size = SPI_FRAMESIZE_8BIT; <span class="comment">// 1个数据帧大小为8bit</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始时钟为低，且第一个边沿有效上升沿有效。即上升沿有效</span></span><br><span class="line">   spi_init_struct.clock_polarity_phase = SPI_CK_PL_LOW_PH_1EDGE; </span><br><span class="line"></span><br><span class="line">   spi_init_struct.nss = SPI_NSS_SOFT; <span class="comment">// 软件模式</span></span><br><span class="line">   spi_init_struct.prescale = SPI_PSC_128; <span class="comment">// SPI分频，控制发送速率</span></span><br><span class="line">   spi_init_struct.endian = SPI_ENDIAN_MSB; <span class="comment">// 高位先发</span></span><br><span class="line">   spi_init(SPI0, &amp;spi_init_struct); <span class="comment">// 将SPI配置结构体送入初始化函数</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="完整SPI初始化"><a href="#完整SPI初始化" class="headerlink" title="完整SPI初始化"></a>完整SPI初始化</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">spi_config</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    rcu_periph_clock_enable(RCU_GPIOA);</span><br><span class="line">    rcu_periph_clock_enable(RCU_AF);</span><br><span class="line">    rcu_periph_clock_enable(RCU_SPI0);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* configure SPI0 GPIO : SCK/PA5, MISO/PA6, MOSI/PA7 */</span></span><br><span class="line">    gpio_init(GPIOA, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_5 | GPIO_PIN_7);</span><br><span class="line">    gpio_init(GPIOA, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_6);</span><br><span class="line"></span><br><span class="line">    spi_parameter_struct spi_init_struct;</span><br><span class="line">    <span class="comment">/* deinitialize SPI and the parameters */</span></span><br><span class="line">    spi_i2s_deinit(SPI0);</span><br><span class="line">    </span><br><span class="line">    spi_struct_para_init(&amp;spi_init_struct);</span><br><span class="line">    <span class="comment">/* configure SPI0 parameters */</span></span><br><span class="line">    spi_init_struct.trans_mode = SPI_TRANSMODE_FULLDUPLEX;</span><br><span class="line">    spi_init_struct.device_mode = SPI_MASTER;</span><br><span class="line">    spi_init_struct.frame_size = SPI_FRAMESIZE_8BIT;</span><br><span class="line">    spi_init_struct.clock_polarity_phase = SPI_CK_PL_LOW_PH_1EDGE;</span><br><span class="line">    spi_init_struct.nss = SPI_NSS_SOFT;</span><br><span class="line">    spi_init_struct.prescale = SPI_PSC_128;</span><br><span class="line">    spi_init_struct.endian = SPI_ENDIAN_MSB;</span><br><span class="line">    spi_init(SPI0, &amp;spi_init_struct);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用SPI发送且不接收回复"><a href="#使用SPI发送且不接收回复" class="headerlink" title="使用SPI发送且不接收回复"></a>使用SPI发送且不接收回复</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* configure SPI */</span></span><br><span class="line">    spi_config();</span><br><span class="line">    <span class="comment">/* SPI enable */</span></span><br><span class="line">    spi_enable(SPI0);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">char</span> c;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">const</span> <span class="keyword">char</span> *p = <span class="string">&quot;Hello World\n\r&quot;</span>; c = *p; p++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span>(RESET == spi_i2s_flag_get(SPI0, SPI_FLAG_TBE));</span><br><span class="line">            spi_i2s_data_transmit(SPI0, c);</span><br><span class="line">            <span class="keyword">while</span>(RESET == spi_i2s_flag_get(SPI0, SPI_FLAG_RBNE));</span><br><span class="line">            spi_i2s_data_receive(SPI0);<span class="comment">// 读缓冲，重置缓冲区满信号，例程中没有这一句，很不好，应当将缓冲区满信号清空</span></span><br><span class="line">        &#125;</span><br><span class="line">        delay_1ms(<span class="number">2000</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用SPI发送且接收回复"><a href="#使用SPI发送且接收回复" class="headerlink" title="使用SPI发送且接收回复"></a>使用SPI发送且接收回复</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// msg: 向从机发送的消息</span></span><br><span class="line"><span class="function"><span class="keyword">uint8_t</span> <span class="title">read_data</span><span class="params">(<span class="keyword">uint8_t</span> msg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    gpio_bit_reset(GPIOA, NSS); <span class="comment">// 片选开（如果有片选的话）</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/*  准备发送消息  */</span></span><br><span class="line">    <span class="keyword">while</span> (RESET == spi_i2s_flag_get(SPI0, SPI_FLAG_TBE))<span class="comment">// 等待输入缓冲空</span></span><br><span class="line">        ;   </span><br><span class="line">    spi_i2s_data_transmit(SPI0, msg); <span class="comment">// 发送消息</span></span><br><span class="line">    <span class="keyword">while</span> (RESET == spi_i2s_flag_get(SPI0, SPI_FLAG_RBNE))<span class="comment">// 等待读取缓冲满</span></span><br><span class="line">        ;</span><br><span class="line">    spi_i2s_data_receive(SPI0); <span class="comment">// 读缓冲，重置缓冲区满信号</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*  再发送一个空地址</span></span><br><span class="line"><span class="comment">        RVSTAR要求发送缓冲区不为空才能读取</span></span><br><span class="line"><span class="comment">        如果不发送，则无法正常读取  */</span></span><br><span class="line">    <span class="keyword">while</span> (RESET == spi_i2s_flag_get(SPI0, SPI_FLAG_TBE))<span class="comment">// 等待输入缓冲空</span></span><br><span class="line">        ;</span><br><span class="line">    spi_i2s_data_transmit(SPI1, <span class="number">0</span>); <span class="comment">// 向发送缓冲区输入一个数据</span></span><br><span class="line">    <span class="keyword">while</span> (RESET == spi_i2s_flag_get(SPI1, SPI_FLAG_RBNE))<span class="comment">// 等待读取缓冲满</span></span><br><span class="line">        ;</span><br><span class="line">    <span class="keyword">uint16_t</span> receive_data;</span><br><span class="line">    receive_data = spi_i2s_data_receive(SPI1); <span class="comment">// 读缓冲，重置缓冲区满信号</span></span><br><span class="line">    gpio_bit_set(GPIOA, NSS); <span class="comment">// 片选关（如果有片选的话）</span></span><br><span class="line">    <span class="keyword">return</span> receive_data;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面是一个「发一个，收一个」的示例，可以看到如果要收一个数据发送缓冲区里要有数据。<br>也就是说如果你要实现「发n个，收n个」，那么<strong>在第k个数据发送时，你也可以同时接收到第k-1个数据的返回</strong>，而且在第n个数据发送的同时可以接收到从机第n-1个的返回，所以最后还得在补发一个废数据以接收从机的第n个返回。</p>
+<h2 id="结-Tu-语-Cao"><a href="#结-Tu-语-Cao" class="headerlink" title="结(Tu)语(Cao)"></a>结(Tu)语(Cao)</h2><p>最为嵌入式初学者，使用了较新的国产开发板RVSTAR入门，本身相关的例程就几乎没有，而且官方的SPI示例代码中还出现了SPI全双工只演示发送不演示接收的情况，甚至在不清空缓冲区标志位的情况下还去读缓冲区标志位的不良操作。这些情况结合起来导致我在处理SPI通信——尤其是SPI接收——时走了不少弯路。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="德依安 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="德依安 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag"># 编程</a>
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E5%90%88%E9%9B%86/%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90/2021.10%20%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90/" rel="prev" title="2021.10动画推荐">
+      <i class="fa fa-chevron-left"></i> 2021.10动画推荐
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/%E8%8B%B1%E8%AF%AD-%E8%99%9A%E6%8B%9F%E8%AF%AD%E6%B0%94/" rel="next" title="英语-虚拟语气">
+      英语-虚拟语气 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%AC%E6%96%87%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.</span> <span class="nav-text">本文参考资料</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">SPI 基本原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F%E6%A6%82%E8%BF%B0"><span class="nav-number">2.1.</span> <span class="nav-text">通信方式概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%8F%8C%E5%B7%A5%E8%BF%90%E8%A1%8C%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.2.</span> <span class="nav-text">全双工运行模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E5%B7%A5%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.3.</span> <span class="nav-text">单工模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RVSTAR%E7%9A%84SPI%E5%8F%91%E9%80%81%E4%B8%8E%E6%8E%A5%E6%94%B6%E6%B5%81%E7%A8%8B%EF%BC%88%E5%8F%AA%E4%BB%8B%E7%BB%8D%E4%B8%BB%E6%9C%BA%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">RVSTAR的SPI发送与接收流程（只介绍主机模式）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI%E7%BB%93%E6%9E%84%E5%9B%BE"><span class="nav-number">3.1.</span> <span class="nav-text">SPI结构图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E6%9C%BA%E6%A8%A1%E5%BC%8F%E5%8F%91%E9%80%81%E6%B5%81%E7%A8%8B"><span class="nav-number">3.2.</span> <span class="nav-text">主机模式发送流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E6%9C%BA%E6%8E%A5%E6%94%B6%E6%B5%81%E7%A8%8B"><span class="nav-number">3.3.</span> <span class="nav-text">主机接收流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E6%9C%BA%E6%94%B6%E5%8F%91%E6%B5%81%E7%A8%8B%E6%80%BB%E7%BB%93"><span class="nav-number">3.4.</span> <span class="nav-text">主机收发流程总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RVSTAR%E4%BD%BF%E7%94%A8SPI%E7%BC%96%E7%A8%8B%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">RVSTAR使用SPI编程实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%96%E8%AE%BE%E9%85%8D%E7%BD%AE"><span class="nav-number">4.1.</span> <span class="nav-text">外设配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI%E9%85%8D%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">SPI配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4SPI%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.3.</span> <span class="nav-text">完整SPI初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8SPI%E5%8F%91%E9%80%81%E4%B8%94%E4%B8%8D%E6%8E%A5%E6%94%B6%E5%9B%9E%E5%A4%8D"><span class="nav-number">4.4.</span> <span class="nav-text">使用SPI发送且不接收回复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8SPI%E5%8F%91%E9%80%81%E4%B8%94%E6%8E%A5%E6%94%B6%E5%9B%9E%E5%A4%8D"><span class="nav-number">4.5.</span> <span class="nav-text">使用SPI发送且接收回复</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93-Tu-%E8%AF%AD-Cao"><span class="nav-number">5.</span> <span class="nav-text">结(Tu)语(Cao)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="德依安"
+      src="/images/dd_avatar_chun.jpg">
+  <p class="site-author-name" itemprop="name">德依安</p>
+  <div class="site-description" itemprop="description">记录一些关于学习、生活、爱好的个人网站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:768003641@qq.com" title="E-Mail → mailto:768003641@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+    </div>
+  </aside>
+
+  <div id="sidebar-dimmer"></div>
+
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-coffee"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">德依安</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">47k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:33</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.8s',
+  mixColor: 'rgba(0,0,0,0.7)',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'Q1of9PPrAVcg9QlttMSouUyg-MdYXbMMI',
+      appKey     : 'aciBvoJbivUq2Wc1AMzKPUsI',
+      placeholder: "都看完了，不来说两句吗OvO",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://q1of9ppr.api.lncldglobal.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

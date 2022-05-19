@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/</loc>
+    
+    <lastmod>2022-05-19</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://ddg-302.github.io/%E8%8B%B1%E8%AF%AD-%E8%99%9A%E6%8B%9F%E8%AF%AD%E6%B0%94/</loc>
     
     <lastmod>2022-05-19</lastmod>
@@ -232,6 +241,13 @@
   </url>
   
   <url>
+    <loc>https://ddg-302.github.io/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/</loc>
+    <lastmod>2022-05-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://ddg-302.github.io/tags/%E9%9F%B3%E4%B9%90/</loc>
     <lastmod>2022-05-19</lastmod>
     <changefreq>weekly</changefreq>
@@ -270,6 +286,13 @@
   
   <url>
     <loc>https://ddg-302.github.io/categories/%E7%A7%91%E6%99%AE/</loc>
+    <lastmod>2022-05-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://ddg-302.github.io/categories/%E7%BC%96%E7%A8%8B/</loc>
     <lastmod>2022-05-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
