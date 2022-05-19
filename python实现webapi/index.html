@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ddg-302.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="基于FastAPI实现Web API的GET与POST请求">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python实现Web API">
+<meta property="og:url" content="https://ddg-302.github.io/python%E5%AE%9E%E7%8E%B0webapi/index.html">
+<meta property="og:site_name" content="德依安-BLOG">
+<meta property="og:description" content="基于FastAPI实现Web API的GET与POST请求">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ddg-302.github.io/python%E5%AE%9E%E7%8E%B0webapi/image-20211026215907823.png">
+<meta property="og:image" content="https://ddg-302.github.io/python%E5%AE%9E%E7%8E%B0webapi/image-20211027075547192.png">
+<meta property="og:image" content="https://ddg-302.github.io/python%E5%AE%9E%E7%8E%B0webapi/image-20211027080336478.png">
+<meta property="article:published_time" content="2021-10-27T02:11:30.000Z">
+<meta property="article:modified_time" content="2021-12-03T08:17:14.063Z">
+<meta property="article:author" content="德依安">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="技术">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ddg-302.github.io/python%E5%AE%9E%E7%8E%B0webapi/image-20211026215907823.png">
+
+<link rel="canonical" href="https://ddg-302.github.io/python%E5%AE%9E%E7%8E%B0webapi/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python实现Web API | 德依安-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">德依安-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">奇迹与魔法都是存在的</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">14</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">8</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-website-404">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>本站404</a>
+
+  </li>
+        <li class="menu-item menu-item-bangumi">
+
+    <a href="/bangumis/" rel="section"><i class="fa fa-tv fa-fw"></i>动画</a>
+
+  </li>
+        <li class="menu-item menu-item-cinema">
+
+    <a href="/cinemas/" rel="section"><i class="fa fa-film fa-fw"></i>电影</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ddg-302.github.io/python%E5%AE%9E%E7%8E%B0webapi/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dd_avatar_chun.jpg">
+      <meta itemprop="name" content="德依安">
+      <meta itemprop="description" content="记录一些关于学习、生活、爱好的个人网站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="德依安-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python实现Web API
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-27 10:11:30" itemprop="dateCreated datePublished" datetime="2021-10-27T10:11:30+08:00">2021-10-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-03 16:17:14" itemprop="dateModified" datetime="2021-12-03T16:17:14+08:00">2021-12-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/REST-API/" itemprop="url" rel="index"><span itemprop="name">REST API</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/python%E5%AE%9E%E7%8E%B0webapi/" class="post-meta-item leancloud_visitors" data-flag-title="Python实现Web API" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/python%E5%AE%9E%E7%8E%B0webapi/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/python%E5%AE%9E%E7%8E%B0webapi/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+            <div class="post-description">基于FastAPI实现Web API的GET与POST请求</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><div class="note info">
+            <h2 id="基于FastAPI和uvicorn开发"><a href="#基于FastAPI和uvicorn开发" class="headerlink" title="基于FastAPI和uvicorn开发"></a>基于FastAPI和uvicorn开发</h2><ul><li><p>FastAPI是一个高效的异步Web框架</p></li><li><p>uvicorn是快速的http服务器框架</p></li><li><p>详情：<a target="_blank" rel="noopener" href="https://fastapi.tiangolo.com/zh/">FastAPI</a>  </p></li></ul>
+          </div>
+
+
+
+<h2 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI</span><br><span class="line"><span class="keyword">from</span> fastapi.middleware.cors <span class="keyword">import</span> CORSMiddleware</span><br><span class="line"><span class="keyword">import</span> uvicorn</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app = FastAPI()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 处理跨域</span></span><br><span class="line">app.add_middleware(</span><br><span class="line">    CORSMiddleware,</span><br><span class="line">    allow_origins=[<span class="string">&quot;*&quot;</span>],</span><br><span class="line">    allow_credentials=<span class="literal">True</span>,</span><br><span class="line">    allow_methods=[<span class="string">&quot;*&quot;</span>],</span><br><span class="line">    allow_headers=[<span class="string">&quot;*&quot;</span>]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_root</span>():</span></span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;hello&quot;</span> : <span class="string">&quot;world&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/items&quot;</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_item</span>(<span class="params">item_id:<span class="built_in">int</span>, q:<span class="built_in">str</span> = null</span>):</span></span><br><span class="line">    <span class="keyword">return</span>&#123;<span class="string">&quot;item_id&quot;</span> : item_id, <span class="string">&quot;msg&quot;</span>:q&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    uvicorn.run(app = app, host = <span class="string">&quot;0.0.0.0&quot;</span>, port = <span class="number">8000</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>@app.post</code>下的函数处理post请求，<code>@app.post(&#39;/&#39;)</code>表示路由，本例中post的url为<code>localhost:8000</code>，如果改为<code>@app.post(&#39;/p&#39;)</code>，那么post时的url应为<code>localhost:8000/p</code></p>
+<p>其他的请求同理</p>
+<h2 id="运行服务器"><a href="#运行服务器" class="headerlink" title="运行服务器"></a>运行服务器</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uvicorn &lt;填入文件名&gt;:&lt;填入FastAPI实例名&gt; --reload</span><br></pre></td></tr></table></figure>
+
+<p>我的程序文件名为webtest.py，实例名为app，所以我的指令为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uvicorn webtest:app --reload</span><br></pre></td></tr></table></figure>
+
+<p>完整指令是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uvicorn &lt;文件名&gt;:&lt;实例名&gt; --reload --host 192.XXX.XXX --port xxxx</span><br></pre></td></tr></table></figure>
+
+<p>其中，reload是自动重启，修改源文件后服务器自动重启，后面的是指定主机地址和端口号，在实例程序中单独设置了，所以不需要再在命令行中设置</p>
+<p>相关文档：<a target="_blank" rel="noopener" href="https://www.uvicorn.org/settings/">Uvicorn</a></p>
+<h2 id="HTML调用"><a href="#HTML调用" class="headerlink" title="HTML调用"></a>HTML调用</h2><p>HTML调用与调用一般的REST API形式相同，这里使用jQuery发出请求</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$.get(<span class="string">&quot;http://127.0.0.1:8000/items&quot;</span>,</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;item_id&quot;</span> : <span class="number">1</span></span><br><span class="line">&#125;,</span><br><span class="line"><span class="function"><span class="keyword">function</span>(<span class="params">data</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(data);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/python%E5%AE%9E%E7%8E%B0webapi/image-20211026215907823.png" alt="html发出get请求"></p>
+<h2 id="关于POST"><a href="#关于POST" class="headerlink" title="关于POST"></a>关于POST</h2><h3 id="POST基础实现"><a href="#POST基础实现" class="headerlink" title="POST基础实现"></a>POST基础实现</h3><p>如果你像网上很多示例一样写POST，并用jQuery调用</p>
+<p>后端：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_model</span>(<span class="params">msg:<span class="built_in">str</span></span>):</span>   </span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;message&quot;</span>:msg&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前端：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$.post(<span class="string">&quot;http://127.0.0.1:8000&quot;</span>,</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;msg&quot;</span> : <span class="string">&quot;测试数据&quot;</span></span><br><span class="line">&#125;,</span><br><span class="line"><span class="function"><span class="keyword">function</span>(<span class="params">data</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(data);</span><br><span class="line">&#125;,</span><br><span class="line"><span class="string">&quot;json&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>那么你会发现服务器返回422错误码，说你的数据格式不正确</p>
+<p><img src="/python%E5%AE%9E%E7%8E%B0webapi/image-20211027075547192.png" alt="post发生422错误"></p>
+<p>这个问题之前在用.net core开发web api时就发现过，当时的解决方法是在参数前加上<code>[FromForm]</code></p>
+<p>像这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 这里是c#代码</span><br><span class="line">[HttpPost]</span><br><span class="line">public void fun([FromForm] Item item)</span><br></pre></td></tr></table></figure>
+
+<p>这是因为看似jQuery传参是一个json，但实际上还是以Form形式传递的，在python这里也要这样操作，在参数后面加上<code>= Form(&lt;参数&gt;)</code></p>
+<p>修改后的后端代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI, Form</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_model</span>(<span class="params">msg:<span class="built_in">str</span> = Form(<span class="params">...</span>)</span>):</span>   </span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;message&quot;</span>:msg&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前端不用修改，这次可以正常POST了</p>
+<p><img src="/python%E5%AE%9E%E7%8E%B0webapi/image-20211027080336478.png" alt="成功post"></p>
+<p>关于<code>Form(&lt;para&gt;)</code>中的参数</p>
+<ul>
+<li>如果写<code>Form(...)</code>表示这个参数不可省略</li>
+<li>如果写<code>Form(&quot;这是默认数据&quot;)</code>表示这个参数缺省时的默认参数为一个字符串：”这是默认数据”</li>
+<li>如果写<code>Form(None)</code>表示这个参数缺省时的默认值为空</li>
+</ul>
+<div class="note danger">
+            <p> 注意：</p><p>其他人和官方文档的基础示例中都没有指定Header、Body或是Form，本人学艺不精，并不清楚怎么向后端传递json格式的数据，只会用jQuery.ajax方法传参，所以必须用到<code>= Form(&lt;para&gt;)</code>的形式</p><p>如果大佬了解其他传参方式，请务必在评论区中留言，感谢您的指导</p>
+          </div>
+
+<h3 id="使用模型类"><a href="#使用模型类" class="headerlink" title="使用模型类"></a>使用模型类</h3><div class="note info">
+            <p>模型使用<code>pydantic</code><br>详情：<a target="_blank" rel="noopener" href="https://pydantic-docs.helpmanual.io/">pydantic</a></p>
+          </div>
+
+<p>这里我尝试了好久也无法在使用模型类的情况下用jQuery实现post，用ajax指定各种数据类型也没用，直接敲url服务器拒绝访问，如果有大佬知道怎么操作的，请在在评论区留言，不胜感激</p>
+<p>我想开发web api主要是因为想要接收<code>MyQQ</code>机器人<code>HTMLAPI</code>的回调请求，虽然无法接收来自Form的post请求，但来自body的post请求还是可以接收到的</p>
+<p>创建模型类：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MSG_CALL_BACK</span>(<span class="params">BaseModel</span>):</span>   </span><br><span class="line">    MQ_robot: <span class="built_in">str</span></span><br><span class="line">    MQ_type: <span class="built_in">int</span></span><br><span class="line">    MQ_type_sub: <span class="built_in">int</span></span><br><span class="line">    MQ_fromID: <span class="built_in">str</span></span><br><span class="line">    MQ_fromQQ: <span class="built_in">str</span></span><br><span class="line">    MQ_passiveQQ: <span class="built_in">str</span></span><br><span class="line">    MQ_msg: <span class="built_in">str</span></span><br><span class="line">    MQ_msgSeq: <span class="built_in">str</span></span><br><span class="line">    MQ_msgID: <span class="built_in">str</span></span><br><span class="line">    MQ_msgData: <span class="built_in">str</span></span><br><span class="line">    MQ_timestamp: <span class="built_in">str</span></span><br></pre></td></tr></table></figure>
+
+<p>编写post处理：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_model</span>(<span class="params">    </span></span></span><br><span class="line"><span class="params"><span class="function">    item:MSG_CALL_BACK</span>):</span>   </span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;status&quot;</span>:<span class="number">1</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>即使不指定item的类型在python中也是完全可行的，只不过指定类型后在取item中的值时会有代码提示，也便于代码的理解</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="德依安 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="德依安 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag"># 编程</a>
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+              <a href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag"># 网络</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/%E5%9C%B0%E5%BD%A2%E5%8F%98%E8%A7%82%E6%B5%8B%E6%96%B9%E6%B3%95/" rel="next" title="地形变观测方法">
+      地形变观测方法 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EFastAPI%E5%92%8Cuvicorn%E5%BC%80%E5%8F%91"><span class="nav-number">1.</span> <span class="nav-text">基于FastAPI和uvicorn开发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.</span> <span class="nav-text">代码示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">运行服务器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTML%E8%B0%83%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">HTML调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E4%BA%8EPOST"><span class="nav-number">5.</span> <span class="nav-text">关于POST</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#POST%E5%9F%BA%E7%A1%80%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.1.</span> <span class="nav-text">POST基础实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%A8%A1%E5%9E%8B%E7%B1%BB"><span class="nav-number">5.2.</span> <span class="nav-text">使用模型类</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="德依安"
+      src="/images/dd_avatar_chun.jpg">
+  <p class="site-author-name" itemprop="name">德依安</p>
+  <div class="site-description" itemprop="description">记录一些关于学习、生活、爱好的个人网站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:768003641@qq.com" title="E-Mail → mailto:768003641@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+    </div>
+  </aside>
+
+  <div id="sidebar-dimmer"></div>
+
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-coffee"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">德依安</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">41k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:22</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.8s',
+  mixColor: 'rgba(0,0,0,0.7)',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'Q1of9PPrAVcg9QlttMSouUyg-MdYXbMMI',
+      appKey     : 'aciBvoJbivUq2Wc1AMzKPUsI',
+      placeholder: "都看完了，不来说两句吗OvO",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://q1of9ppr.api.lncldglobal.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

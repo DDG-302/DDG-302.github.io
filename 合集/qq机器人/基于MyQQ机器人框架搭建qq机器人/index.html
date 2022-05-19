@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ddg-302.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="基于MyQQ机器人框架，使用python语言搭建一个能够自动进行消息收发的qq机器人">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于MyQQ机器人框架搭建qq机器人">
+<meta property="og:url" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/index.html">
+<meta property="og:site_name" content="德依安-BLOG">
+<meta property="og:description" content="基于MyQQ机器人框架，使用python语言搭建一个能够自动进行消息收发的qq机器人">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121172803706.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121172833072.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121110052207.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121110314782.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121110608827.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121110956505.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121111343405.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121111451527.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121112304982.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121160707142.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121160739347.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121164714948.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121173003878.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121174258211.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121174952539.png">
+<meta property="article:published_time" content="2021-11-21T10:04:12.000Z">
+<meta property="article:modified_time" content="2021-12-12T11:09:49.409Z">
+<meta property="article:author" content="德依安">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="技术">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121172803706.png">
+
+<link rel="canonical" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>基于MyQQ机器人框架搭建qq机器人 | 德依安-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">德依安-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">奇迹与魔法都是存在的</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">14</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">8</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-website-404">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>本站404</a>
+
+  </li>
+        <li class="menu-item menu-item-bangumi">
+
+    <a href="/bangumis/" rel="section"><i class="fa fa-tv fa-fw"></i>动画</a>
+
+  </li>
+        <li class="menu-item menu-item-cinema">
+
+    <a href="/cinemas/" rel="section"><i class="fa fa-film fa-fw"></i>电影</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dd_avatar_chun.jpg">
+      <meta itemprop="name" content="德依安">
+      <meta itemprop="description" content="记录一些关于学习、生活、爱好的个人网站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="德依安-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于MyQQ机器人框架搭建qq机器人
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-21 18:04:12" itemprop="dateCreated datePublished" datetime="2021-11-21T18:04:12+08:00">2021-11-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-12 19:09:49" itemprop="dateModified" datetime="2021-12-12T19:09:49+08:00">2021-12-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/" itemprop="url" rel="index"><span itemprop="name">qq机器人</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/" class="post-meta-item leancloud_visitors" data-flag-title="基于MyQQ机器人框架搭建qq机器人" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>11k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>22 分钟</span>
+            </span>
+            <div class="post-description">基于MyQQ机器人框架，使用python语言搭建一个能够自动进行消息收发的qq机器人</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="基于MyQQ机器人框架搭建qq机器人"><a href="#基于MyQQ机器人框架搭建qq机器人" class="headerlink" title="基于MyQQ机器人框架搭建qq机器人"></a>基于MyQQ机器人框架搭建qq机器人</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>很早以前就有搭建一个能自动收发消息的qq机器人的想法，但是一直找不到可行的方法</p>
+<p>webqq被腾讯关闭了，无法使用；qq网络消息是加密的，而且本人的计网水品也达不到抓包并解密的程度；qq的本地消息数据库也是qq自建的，无法从外部读取；用windows的api直接获取窗体数据太过于繁琐而且灵活性很差</p>
+<p>在种种方式都不可行的情况下，只能借助第三方工具，MyQQ机器人框架，是一款功能强大的qq消息收发机器人框架，可以接收文字、图片、点赞、好友登录离线等多种qq消息，也可以发送文字、图片、回复等多种qq消息</p>
+<p>在这里我们借用MyQQ机器人框架帮助我们解决qq消息的IO问题</p>
+<p><strong>MyQQ YYDS！</strong></p>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><h3 id="MyQQ机器人框架"><a href="#MyQQ机器人框架" class="headerlink" title="MyQQ机器人框架"></a>MyQQ机器人框架</h3><p>进入MyQQ机器人官网首页（<a target="_blank" rel="noopener" href="https://www.myqqx.com/">MyQQ机器人官网首页</a>），按照教程（<a target="_blank" rel="noopener" href="https://bbs.myqqx.com/forum.php?mod=viewthread&tid=82">框架使用教程-新手必看</a>）下载并配置好MyQQ备用</p>
+<p><a target="_blank" rel="noopener" href="https://www.myqqx.com/0.doc.html">相关文档首页 | MyQQ机器人 </a></p>
+<h3 id="python"><a href="#python" class="headerlink" title="python"></a>python</h3><p>安装好MyQQ机器人后不需要安装其他的插件，我们将直接使用MyQQ官方提供的<code>HTTP API</code>插件</p>
+<p>使用这个插件我们需要自己构建一个web服务器来接收MyQQ获取到的消息，为了方便和后续的扩展开发，我们选择<code>python</code>语言进行开发</p>
+<p>安装python并配置好相关环境</p>
+<h4 id="将使用到的python相关的包"><a href="#将使用到的python相关的包" class="headerlink" title="将使用到的python相关的包"></a>将使用到的python相关的包</h4><p><code>fastapi</code>、<code>uvicorn</code>、<code>pydantic</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pip install fastapi</span><br><span class="line">pip install uvicorn</span><br><span class="line">pip install pydantic</span><br></pre></td></tr></table></figure>
+
+<p>这三个包用于搭建web服务器，在本项目中不需要实现很复杂的web服务，这个服务器也将一直在本地运行，因此可以看我的另一篇博客快速入门使用：<a href="https://ddg-302.github.io/python%E5%AE%9E%E7%8E%B0webapi/">python实现web api</a></p>
+<h2 id="MyQQ机器人框架消息收发"><a href="#MyQQ机器人框架消息收发" class="headerlink" title="MyQQ机器人框架消息收发"></a>MyQQ机器人框架消息收发</h2><p>如果已经根据教程设置好MyQQ了，那么应该能够知道，MyQQ的接收到消息后会主动发送post请求到指定的url；我们希望发送消息时，则可以post或get到MyQQ指定的url</p>
+<p>如果不知道post和get请求是什么，请百度搜索<code>REST API</code></p>
+<h2 id="服务器基础结构"><a href="#服务器基础结构" class="headerlink" title="服务器基础结构"></a>服务器基础结构</h2><p>首先，构建一个基础的工程目录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">│  main.py</span><br><span class="line">│</span><br><span class="line">└─module</span><br></pre></td></tr></table></figure>
+
+<p><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121172803706.png" alt="目录结构"></p>
+<p><code>module</code>文件夹一会就会使用到，首先在<code>main.py</code>文件中写下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI, Body</span><br><span class="line"><span class="keyword">from</span> fastapi.middleware.cors <span class="keyword">import</span> CORSMiddleware</span><br><span class="line"><span class="keyword">import</span> uvicorn</span><br><span class="line"></span><br><span class="line">app = FastAPI()</span><br><span class="line"><span class="comment"># 解决跨域</span></span><br><span class="line">app.add_middleware(</span><br><span class="line">    CORSMiddleware,</span><br><span class="line">    allow_origins=[<span class="string">&quot;*&quot;</span>],</span><br><span class="line">    allow_credentials=<span class="literal">True</span>,</span><br><span class="line">    allow_methods=[<span class="string">&quot;*&quot;</span>],</span><br><span class="line">    allow_headers=[<span class="string">&quot;*&quot;</span>]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun1</span>(<span class="params"><span class="string">&#x27;&#x27;&#x27;在这里填入参数&#x27;&#x27;&#x27;</span></span>):</span></span><br><span class="line">    <span class="comment"># 业务处理</span></span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;status&quot;</span>:<span class="number">1</span>&#125; <span class="comment"># MyQQ要求返回1表示允许其他插件继续处理</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:   </span><br><span class="line">    uvicorn.run(app = app, host = <span class="string">&#x27;&#x27;&#x27;填入本地ip&#x27;&#x27;&#x27;</span>, port = <span class="string">&#x27;&#x27;&#x27;指定的端口号&#x27;&#x27;&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这样一个能处理post请求的web服务器就搭建完成了，由于这个服务器只需要接收post请求，所以这里只需要写一个post即可</p>
+<div class="note danger">
+            <p> 注意：</p><p>在解决跨域时，这里直接允许所有的访问，这在生产环境中显然是不安全的，但是仅仅在本地内网使用的情况下，先姑且这样处理</p>
+          </div>
+
+<h2 id="接收一个消息"><a href="#接收一个消息" class="headerlink" title="接收一个消息"></a>接收一个消息</h2><h3 id="编写post"><a href="#编写post" class="headerlink" title="编写post"></a>编写post</h3><p>根据MyQQ官网中关于<a target="_blank" rel="noopener" href="https://www.myqqx.cn/6.HTTPAPI/5.%E6%B6%88%E6%81%AF%E5%9B%9E%E8%B0%83.html#%E6%B6%88%E6%81%AF%E5%9B%9E%E8%B0%83">消息回调</a>的信息，MyQQ给出的post请求携带json格式信息，其内容如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;MQ_robot&quot;</span>: <span class="string">&quot;1330166568&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;MQ_type&quot;</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">&quot;MQ_type_sub&quot;</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="attr">&quot;MQ_fromID&quot;</span>: <span class="string">&quot;1330166565&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;MQ_fromQQ&quot;</span>: <span class="string">&quot;1330166565&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;MQ_passiveQQ&quot;</span>: <span class="string">&quot;1330166568&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;MQ_msg&quot;</span>: <span class="string">&quot;123%E6%B5%8B%E8%AF%95,loveyou&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;MQ_msgSeq&quot;</span>: <span class="string">&quot;1482636593&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;MQ_msgID&quot;</span>: <span class="string">&quot;1243&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;MQ_msgData&quot;</span>: <span class="string">&quot;4F 48 BB 25 4F 48 BB 28 00 06 36 04 09 95 68 BD 1F 40 00 A6 00 00 00 2D 00 05 00 02 00 01 00 06 00 04 00 01 01 01 00 09 00 06 00 01 00 00 00 01 00 0A 00 04 01 00 00 00 00 01 00 04 00 00 00 00 00 03 00 01 02 3A 03 4F 48 BB 25 4F 48 BB 28 E7 B9 55 10 DA 5A 21 52 F4 EA 9C 41 C7 BE F7 A8 00 0B 04 DB 60 75 66 A5 02 43 00 00 00 00 01 00 00 00 01 4D 53 47 00 00 00 00 00 60 75 66 A5 58 5F 3D 31 00 00 00 00 0B 00 86 31 00 0C E5 BE AE E8 BD AF E9 9B 85 E9 BB 91 00 00 01 00 0C 01 00 09 31 32 33 E6 B5 8B E8 AF 95 19 00 1E 01 00 1B AA 02 18 08 08 9A 01 13 78 80 80 04 C8 01 00 F0 01 00 F8 01 00 90 02 00 CA 04 00 0E 00 07 01 00 04 00 00 00 00&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;MQ_timestamp&quot;</span>: <span class="string">&quot;1630051875&quot;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>详细的参数含义请见上面链接中的文档说明</p>
+<p>参数数量比较大，因此我们考虑使用模型类来处理信息，在<a href="https://ddg-302.github.io/python%E5%AE%9E%E7%8E%B0webapi/">python实现web api</a>展示的模型类就是它，我们把这个模型类放到<code>module</code>文件夹下的<code>MSG_CALL_BACK.py</code>文件中</p>
+<p><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121172833072.png" alt="工程结构"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MSG_CALL_BACK</span>(<span class="params">BaseModel</span>):</span>   </span><br><span class="line">    MQ_robot: <span class="built_in">str</span></span><br><span class="line">    MQ_type: <span class="built_in">int</span></span><br><span class="line">    MQ_type_sub: <span class="built_in">int</span></span><br><span class="line">    MQ_fromID: <span class="built_in">str</span></span><br><span class="line">    MQ_fromQQ: <span class="built_in">str</span></span><br><span class="line">    MQ_passiveQQ: <span class="built_in">str</span></span><br><span class="line">    MQ_msg: <span class="built_in">str</span></span><br><span class="line">    MQ_msgSeq: <span class="built_in">str</span></span><br><span class="line">    MQ_msgID: <span class="built_in">str</span></span><br><span class="line">    MQ_msgData: <span class="built_in">str</span></span><br><span class="line">    MQ_timestamp: <span class="built_in">str</span></span><br></pre></td></tr></table></figure>
+
+<p>post处理</p>
+<p>首先引入模型类</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> module.MSG_CALL_BACK <span class="keyword">import</span> MSG_CALL_BACK</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_model</span>(<span class="params">item:MSG_CALL_BACK = Body(<span class="params">...</span>)</span>):</span>   </span><br><span class="line">    <span class="built_in">print</span>(item)</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;status&quot;</span>:<span class="number">1</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们把fun1的名字改成了read_model，参数命名为item，并指定是MSG_CALL_BACK类型以便于代码编写时的处理，在函数中打印出item，最后返回状态为1</p>
+<p>即使不指定item的类型在python中也是完全可行的，只不过指定类型后在编写时会有代码提示，也便于代码的理解</p>
+<h3 id="指定本机地址和端口号"><a href="#指定本机地址和端口号" class="headerlink" title="指定本机地址和端口号"></a>指定本机地址和端口号</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:   </span><br><span class="line">    uvicorn.run(app = app, host = <span class="string">&quot;0.0.0.0&quot;</span>, port = <span class="string">&quot;8000&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>在MyQQ的HTTP API设置中也做好相同的设置</p>
+<p><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121110052207.png" alt="设置回调"></p>
+<h3 id="试验结果"><a href="#试验结果" class="headerlink" title="试验结果"></a>试验结果</h3><p>到这里我们已经可以做到接收一个消息了，来试验一下是否发送成功吧</p>
+<ol>
+<li><p>首先登陆机器人qq</p>
+<ul>
+<li><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121110314782.png" alt="登陆机器人qq"></li>
+</ul>
+</li>
+<li><p>启动服务器</p>
+<ul>
+<li>控制台中输入：</li>
+</ul>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uvicorn main:app --reload</span><br></pre></td></tr></table></figure>
+
+<div class="note warning">
+            <p>注意这里的<code>main</code>表示我的代码在<code>main.py</code>文件中，而且fastapi实例名为<code>app</code>，如果你的设置不是这样的，那么应当修改对应的参数</p>
+          </div>  </li>
+<li><p>然后向这个机器人qq发送一条消息</p>
+<ul>
+<li><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121110608827.png" alt="发送消息"></li>
+<li><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121110956505.png" alt="接收回调"></li>
+</ul>
+</li>
+</ol>
+<p>我们确实成功接收到消息了，而且消息内容在MQ_msg中</p>
+<h3 id="进一步处理消息"><a href="#进一步处理消息" class="headerlink" title="进一步处理消息"></a>进一步处理消息</h3><p>有一个问题，如果消息内容是中文，那么消息在传送时会转码</p>
+<p><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121111343405.png" alt="发送消息"></p>
+<p><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121111451527.png" alt="接收消息"></p>
+<p>因此我们需要将消息内容进一步解码</p>
+<p>解码需要引入新的包</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> unquote</span><br></pre></td></tr></table></figure>
+
+<p>使用unquote进行解码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_model</span>(<span class="params">item:MSG_CALL_BACK = Body(<span class="params">...</span>)</span>):</span>   </span><br><span class="line">    received_msg = unquote(item.MQ_msg)</span><br><span class="line">    <span class="built_in">print</span>(received_msg)</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;status&quot;</span>:<span class="number">1</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121112304982.png" alt="回调接收"></p>
+<p>这样就能获取到正常的消息啦</p>
+<h3 id="实现消息接收的完整代码"><a href="#实现消息接收的完整代码" class="headerlink" title="实现消息接收的完整代码"></a>实现消息接收的完整代码</h3><p>此时的目录结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">│  main.py</span><br><span class="line">│</span><br><span class="line">└─module</span><br><span class="line">|      MSG_CALL_BACK.py</span><br></pre></td></tr></table></figure>
+
+<p><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121160707142.png" alt="目录结构"></p>
+<p><code>main.py</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI, Body</span><br><span class="line"><span class="keyword">from</span> fastapi.middleware.cors <span class="keyword">import</span> CORSMiddleware</span><br><span class="line"><span class="keyword">import</span> uvicorn</span><br><span class="line"><span class="keyword">from</span> module.MSG_CALL_BACK <span class="keyword">import</span> MSG_CALL_BACK <span class="comment"># 引入模型类</span></span><br><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> unquote</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app = FastAPI()</span><br><span class="line"><span class="comment"># 解决跨域</span></span><br><span class="line">app.add_middleware(</span><br><span class="line">    CORSMiddleware,</span><br><span class="line">    allow_origins=[<span class="string">&quot;*&quot;</span>],</span><br><span class="line">    allow_credentials=<span class="literal">True</span>,</span><br><span class="line">    allow_methods=[<span class="string">&quot;*&quot;</span>],</span><br><span class="line">    allow_headers=[<span class="string">&quot;*&quot;</span>]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_model</span>(<span class="params">item:MSG_CALL_BACK = Body(<span class="params">...</span>)</span>):</span>   </span><br><span class="line">    received_msg = unquote(item.MQ_msg)</span><br><span class="line">    <span class="built_in">print</span>(received_msg)</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;status&quot;</span>:<span class="number">1</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:   </span><br><span class="line">    uvicorn.run(app = app, host = <span class="string">&quot;0.0.0.0&quot;</span>, port = <span class="string">&quot;8000&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>MSG_CALL_BACK.py</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MSG_CALL_BACK</span>(<span class="params">BaseModel</span>):</span>   </span><br><span class="line">    MQ_robot: <span class="built_in">str</span></span><br><span class="line">    MQ_type: <span class="built_in">int</span></span><br><span class="line">    MQ_type_sub: <span class="built_in">int</span></span><br><span class="line">    MQ_fromID: <span class="built_in">str</span></span><br><span class="line">    MQ_fromQQ: <span class="built_in">str</span></span><br><span class="line">    MQ_passiveQQ: <span class="built_in">str</span></span><br><span class="line">    MQ_msg: <span class="built_in">str</span></span><br><span class="line">    MQ_msgSeq: <span class="built_in">str</span></span><br><span class="line">    MQ_msgID: <span class="built_in">str</span></span><br><span class="line">    MQ_msgData: <span class="built_in">str</span></span><br><span class="line">    MQ_timestamp: <span class="built_in">str</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="发送一个消息"><a href="#发送一个消息" class="headerlink" title="发送一个消息"></a>发送一个消息</h2><p>发送消息可以使用post也可以使用get，<strong>笔者使用get请求</strong></p>
+<h3 id="post方式"><a href="#post方式" class="headerlink" title="post方式"></a>post方式</h3><p>官网文档中的说法是：</p>
+<blockquote>
+<p>以下用<code>http://localhost:10002/MyQQHTTPAPI</code>作为演示</p>
+<p>我们强烈推荐使用<strong>POST</strong>请求方式</p>
+</blockquote>
+<blockquote>
+<p>提交地址：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:10002/MyQQHTTPAPI</span><br></pre></td></tr></table></figure>
+
+<p>提交数据：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;function&quot;</span>: <span class="string">&quot;Api_SendMsg&quot;</span>,  <span class="comment">//要调用的函数英文名(查看右侧API列表)</span></span><br><span class="line">    <span class="attr">&quot;token&quot;</span>: <span class="string">&quot;666&quot;</span>,            <span class="comment">//后台设置的token</span></span><br><span class="line">    <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;c1&quot;</span>: <span class="string">&quot;363751070&quot;</span>,            <span class="comment">//参数1，要使用的机器人QQ</span></span><br><span class="line">        <span class="attr">&quot;c2&quot;</span>: <span class="string">&quot;2&quot;</span>,                    <span class="comment">//参数2，消息类型，2为群，以此类推...</span></span><br><span class="line">        <span class="attr">&quot;c3&quot;</span>: <span class="string">&quot;320562077&quot;</span>,            <span class="comment">//参数3，要发送的群号，以此类推...</span></span><br><span class="line">        <span class="attr">&quot;c4&quot;</span>: <span class="string">&quot;&quot;</span>,                     <span class="comment">//参数4，要发送的QQ，此处发的是群，所以这个要留空，以此类推...</span></span><br><span class="line">        <span class="attr">&quot;c5&quot;</span>: <span class="string">&quot;你好，测试一下&quot;</span>        <span class="comment">//参数5，要发送的消息内容，以此类推...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>使用post的好处是比get更加安全，因为get是明文传输的，然而我试了好久都只能让post的消息以<code>Form</code>的形式提交，而MyQQ貌似并不能接收这样的post请求，所以<strong>笔者将使用get请求</strong>，如果你知道如何使用post实现发送消息，敬请留言交流</p>
+<h3 id="get方式"><a href="#get方式" class="headerlink" title="get方式"></a>get方式</h3><p>使用get请求传参：</p>
+<blockquote>
+<table>
+<thead>
+<tr>
+<th align="left">名称</th>
+<th align="left">参数</th>
+<th align="center">值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">请求地址</td>
+<td align="left"><code>http://localhost:10002/MyQQHTTPAPI</code></td>
+<td align="center"><code>http://localhost:10002/MyQQHTTPAPI</code></td>
+</tr>
+<tr>
+<td align="left">调用函数</td>
+<td align="left">function</td>
+<td align="center">要调用的函数英文名(查看右侧API列表)</td>
+</tr>
+<tr>
+<td align="left">token</td>
+<td align="left">token</td>
+<td align="center">后台设置的token</td>
+</tr>
+<tr>
+<td align="left">参数一</td>
+<td align="left">c1</td>
+<td align="center">如有中文可能有需要URL UTF8编码</td>
+</tr>
+<tr>
+<td align="left">参数二</td>
+<td align="left">c2</td>
+<td align="center">如有中文可能有需要URL UTF8编码</td>
+</tr>
+<tr>
+<td align="left">参数三</td>
+<td align="left">c3</td>
+<td align="center">如有中文可能有需要URL UTF8编码</td>
+</tr>
+<tr>
+<td align="left">参数四</td>
+<td align="left">c4</td>
+<td align="center">如有中文可能有需要URL UTF8编码</td>
+</tr>
+<tr>
+<td align="left">以此类推…</td>
+<td align="left">以此类推…</td>
+<td align="center">如有中文可能有需要URL UTF8编码</td>
+</tr>
+</tbody></table>
+</blockquote>
+<p>从参数结构可以看出，调用函数和token是固定的必填项剩下的参数根据api列表直接c1，c2这样命名下去就好了，那么我们来写一个发送消息的函数</p>
+<ul>
+<li><p>新建类</p>
+<p> 为了后续的扩展开发，我们不妨新建一个文件来专门处理消息的发送</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">│  main.py</span><br><span class="line">│</span><br><span class="line">└─business</span><br><span class="line">│      msg_sender.py</span><br><span class="line">│      router.py</span><br><span class="line">└─module</span><br><span class="line">|      MSG_CALL_BACK.py</span><br></pre></td></tr></table></figure>
+<p> <img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121160739347.png" alt="目录结构"></p>
+<p> 我们构建这样一个目录结构，刚才写好的代码都在<code>main.py</code>中，模型类在MSG_CALL_BACK.py中</p>
+<p> 现在新建一个<code>business</code>文件夹，在其中新建<code>msg_sender.py</code>和<code>router.py</code></p>
+<p> <code>Router.py</code>将用于消息的进一步转发处理，因为上文提到，MyQQ机器人框架接收到的消息远不止聊天消息，好友上下线、邀请入群、群聊解散等等消息它都能接收，哪怕是聊天消息，也分好友聊天、群聊、临时会话，<strong>不同的消息可能需要不同的处理方式</strong>，这就是Router负责的内容，它负责分辨不同种类的消息，并将消息发送给对应模块处理</p>
+<p> <code>msg_sender.py</code>便是我们的消息发送模块了，它负责将消息通过get请求发送给MyQQ，MyQQ再将消息发送到qq     </p>
+</li>
+</ul>
+<h4 id="msg-sender"><a href="#msg-sender" class="headerlink" title="msg_sender"></a>msg_sender</h4><h5 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h5> <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MsgSender</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    </span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">send_pure_text_msg_2_person</span>(<span class="params">self, target_qq:<span class="built_in">str</span>, msg:<span class="built_in">str</span>, robot_qq:<span class="built_in">str</span></span>):</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="查阅发送消息的api"><a href="#查阅发送消息的api" class="headerlink" title="查阅发送消息的api"></a>查阅发送消息的api</h5><p><a target="_blank" rel="noopener" href="https://www.myqqx.cn/5.%E6%89%A9%E5%B1%95%E5%BC%80%E5%8F%91/1.%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3/2.API%E5%88%97%E8%A1%A8.html#api%E5%88%97%E8%A1%A8">API列表</a></p>
+<blockquote>
+<table>
+<thead>
+<tr>
+<th>Api_SendMsg</th>
+<th>无返回值</th>
+<th>向对象、目标发送消息 支持好友 群 讨论组 群临时会话 讨论组临时会话</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>响应QQ</td>
+<td>文本型</td>
+<td>机器人QQ</td>
+</tr>
+<tr>
+<td>消息类型</td>
+<td></td>
+<td>1好友 2群 3讨论组 4群临时会话 5讨论组临时会话 6在线临时会话</td>
+</tr>
+<tr>
+<td>收信群_讨论组</td>
+<td>文本型</td>
+<td>发送群信息、讨论组信息、群临时会话信息、讨论组临时会话信息时填写</td>
+</tr>
+<tr>
+<td>收信对象</td>
+<td>文本型</td>
+<td>最终接收这条信息的对象QQ</td>
+</tr>
+<tr>
+<td>内容</td>
+<td>文本型</td>
+<td>信息内容</td>
+</tr>
+</tbody></table>
+</blockquote>
+<h5 id="根据api信息构建发送参数"><a href="#根据api信息构建发送参数" class="headerlink" title="根据api信息构建发送参数"></a>根据api信息构建发送参数</h5><p>不妨使用如下图的配置信息</p>
+<p><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121164714948.png" alt="配置信息"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MsgSender</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span></span><br><span class="line">        self.httpapi_token = <span class="string">&quot;114514&quot;</span></span><br><span class="line">        self.httpapi_url = <span class="string">&quot;http://localhost:10087/MyQQHTTPAPI&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">send_pure_text_msg_2_person</span>(<span class="params">self, target_qq:<span class="built_in">str</span>, msg:<span class="built_in">str</span>, robot_qq:<span class="built_in">str</span></span>):</span></span><br><span class="line">        Values = &#123;</span><br><span class="line">            <span class="string">&quot;function&quot;</span> : <span class="string">&quot;Api_SendMsg&quot;</span>,</span><br><span class="line">            <span class="string">&quot;token&quot;</span> : self.httpapi_token,</span><br><span class="line">            <span class="string">&quot;c1&quot;</span> : robot_qq,</span><br><span class="line">            <span class="string">&quot;c2&quot;</span> : <span class="string">&quot;1&quot;</span>,</span><br><span class="line">            <span class="string">&quot;c3&quot;</span> : <span class="string">&quot;&quot;</span>,</span><br><span class="line">            <span class="string">&quot;c4&quot;</span> : target_qq,</span><br><span class="line">            <span class="string">&quot;c5&quot;</span> : msg</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="转码消息"><a href="#转码消息" class="headerlink" title="转码消息"></a>转码消息</h5><p>接收消息的时候可以看到非英文字符都经过了一次转码再发送，因此我们在发送消息的时候也需要对中文字符进行转码</p>
+<p>引入包：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib.parse</span><br></pre></td></tr></table></figure>
+
+<p>转码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data = urllib.parse.urlencode(Values).encode(<span class="string">&quot;utf-8&quot;</span>) <span class="comment"># MyQQ要求UTF编码</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="消息发送"><a href="#消息发送" class="headerlink" title="消息发送"></a>消息发送</h5><p>引入包：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br></pre></td></tr></table></figure>
+
+<p>发送消息：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rq = requests</span><br><span class="line">rq = requests.get(self.httpapi_url, params=Values)</span><br></pre></td></tr></table></figure>
+
+<h5 id="打印返回值"><a href="#打印返回值" class="headerlink" title="打印返回值"></a>打印返回值</h5><p>返回值表示对方服务器的响应，打印返回值可以了解自己的请求是否被对方接收，对方是否正常响应、处理了我们的请求</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(rq.content.decode(<span class="string">&quot;utf-8&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<h5 id="msg-sender完整代码"><a href="#msg-sender完整代码" class="headerlink" title="msg_sender完整代码"></a>msg_sender完整代码</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib.parse</span><br><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MsgSender</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span></span><br><span class="line">        <span class="comment"># 分别是MyQQ中设置的两个参数</span></span><br><span class="line">        self.httpapi_token = <span class="string">&quot;114514&quot;</span></span><br><span class="line">        self.httpapi_url = <span class="string">&quot;http://localhost:10087/MyQQHTTPAPI&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">send_pure_text_msg_2_person</span>(<span class="params">self, target_qq:<span class="built_in">str</span>, msg:<span class="built_in">str</span>, robot_qq:<span class="built_in">str</span></span>):</span></span><br><span class="line">        Values = &#123;</span><br><span class="line">            <span class="string">&quot;function&quot;</span> : <span class="string">&quot;Api_SendMsg&quot;</span>,</span><br><span class="line">            <span class="string">&quot;token&quot;</span> : self.httpapi_token,</span><br><span class="line">            <span class="string">&quot;c1&quot;</span> : robot_qq,</span><br><span class="line">            <span class="string">&quot;c2&quot;</span> : <span class="string">&quot;1&quot;</span>,</span><br><span class="line">            <span class="string">&quot;c3&quot;</span> : <span class="string">&quot;&quot;</span>,</span><br><span class="line">            <span class="string">&quot;c4&quot;</span> : target_qq,</span><br><span class="line">            <span class="string">&quot;c5&quot;</span> : msg</span><br><span class="line">        &#125;</span><br><span class="line">        data = urllib.parse.urlencode(Values).encode(<span class="string">&quot;utf-8&quot;</span>) <span class="comment"># 转码</span></span><br><span class="line">        rq = requests</span><br><span class="line">        rq = requests.get(self.httpapi_url, params=Values) <span class="comment"># 发送请求</span></span><br><span class="line">        <span class="built_in">print</span>(rq.content.decode(<span class="string">&quot;utf-8&quot;</span>)) <span class="comment"># 打印服务器返回值</span></span><br></pre></td></tr></table></figure>
+<h4 id="router"><a href="#router" class="headerlink" title="router"></a>router</h4><h5 id="基本结构："><a href="#基本结构：" class="headerlink" title="基本结构："></a>基本结构：</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> module.MSG_CALL_BACK <span class="keyword">import</span> MSG_CALL_BACK</span><br><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> unquote</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Router</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">handle_post</span>(<span class="params">item:MSG_CALL_BACK</span>):</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+
+<p>用staticmethod修饰表示其不依赖其他的变量</p>
+<h5 id="消息转码"><a href="#消息转码" class="headerlink" title="消息转码"></a>消息转码</h5><p>先将获取到的消息进行转码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@staticmethod</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_post</span>(<span class="params">item:MSG_CALL_BACK</span>):</span></span><br><span class="line">    received_msg = unquote(item.MQ_msg)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;收到消息：&quot;</span>, received_msg)</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="判断消息类型"><a href="#判断消息类型" class="headerlink" title="判断消息类型"></a>判断消息类型</h5><p>由api列表可知，当MQ_type为1时表示消息来自好友聊天，我们在这里设置只回应私聊消息</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@staticmethod</span></span><br><span class="line">   <span class="function"><span class="keyword">def</span> <span class="title">handle_post</span>(<span class="params">item:MSG_CALL_BACK</span>):</span></span><br><span class="line">       <span class="built_in">print</span>(<span class="string">&quot;发送消息的qq号：&quot;</span>, item.MQ_fromQQ)</span><br><span class="line">       received_msg = unquote(item.MQ_msg)</span><br><span class="line">       <span class="built_in">print</span>(<span class="string">&quot;消息为：&quot;</span>, received_msg) <span class="comment"># 打印收到的具体消息</span></span><br><span class="line">       <span class="built_in">print</span>(<span class="string">&quot;MQ_type：&quot;</span>, item.MQ_type) <span class="comment"># 打印消息类型</span></span><br><span class="line">       <span class="keyword">if</span>(item.MQ_type == <span class="number">1</span>):</span><br><span class="line">           <span class="comment"># 如果不为1说明不是好友私聊，不做任何处理</span></span><br><span class="line">       	<span class="keyword">pass</span>     	</span><br></pre></td></tr></table></figure>
+
+<p>增加了几条print信息，便于我们在控制台中查看</p>
+<h5 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h5><p>引入刚刚写好的msg_sender</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> business.msg_sender <span class="keyword">import</span> MsgSender</span><br></pre></td></tr></table></figure>
+
+<p>对消息发送者做出回复</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@staticmethod</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_post</span>(<span class="params">item:MSG_CALL_BACK</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;发送消息的qq号：&quot;</span>, item.MQ_fromQQ)</span><br><span class="line">    received_msg = unquote(item.MQ_msg)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;消息为：&quot;</span>, received_msg) <span class="comment"># 打印收到的具体消息</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;MQ_type：&quot;</span>, item.MQ_type) <span class="comment"># 打印消息类型</span></span><br><span class="line">    <span class="keyword">if</span>(item.MQ_type == <span class="number">1</span>):</span><br><span class="line">   		<span class="comment"># 如果不为1说明不是好友私聊，不做任何处理</span></span><br><span class="line">        response_msg = <span class="string">&quot;收到了你发的消息，你发的消息是：&quot;</span> + received_msg</span><br><span class="line">        current_robot_qq = <span class="string">&quot;&quot;</span> <span class="comment"># 填入你的机器人qq号，目前先将其写死在程序中</span></span><br><span class="line">        MsgSender().send_pure_text_msg_2_person(item.MQ_fromQQ, response_msg , current_robot_qq)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h5 id="router完整代码"><a href="#router完整代码" class="headerlink" title="router完整代码"></a>router完整代码</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> module.MSG_CALL_BACK <span class="keyword">import</span> MSG_CALL_BACK</span><br><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> unquote</span><br><span class="line"><span class="keyword">from</span> business.msg_sender <span class="keyword">import</span> MsgSender</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Router</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @staticmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">handle_post</span>(<span class="params">item:MSG_CALL_BACK</span>):</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;发送消息的qq号：&quot;</span>, item.MQ_fromQQ)</span><br><span class="line">        received_msg = unquote(item.MQ_msg)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;消息为：&quot;</span>, received_msg) <span class="comment"># 打印收到的具体消息</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;MQ_type：&quot;</span>, item.MQ_type) <span class="comment"># 打印消息类型</span></span><br><span class="line">        <span class="keyword">if</span>(item.MQ_type == <span class="number">1</span>):</span><br><span class="line">            <span class="comment"># 如果不为1说明不是好友私聊，不做任何处理</span></span><br><span class="line">            response_msg = <span class="string">&quot;收到了你发的消息，你发的消息是：&quot;</span> + received_msg</span><br><span class="line">            current_robot_qq = <span class="string">&quot;&quot;</span> <span class="comment"># 填入你的机器人qq号，目前先将其写死在程序中</span></span><br><span class="line">            MsgSender().send_pure_text_msg_2_person(item.MQ_fromQQ, response_msg , current_robot_qq)</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="改写main"><a href="#改写main" class="headerlink" title="改写main"></a>改写main</h4><p>此时可以在<code>main.py</code>中引入router并将post中的数据传入</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> business.router <span class="keyword">import</span> Router <span class="comment"># 引入路由</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI, Body</span><br><span class="line"><span class="keyword">from</span> fastapi.middleware.cors <span class="keyword">import</span> CORSMiddleware</span><br><span class="line"><span class="keyword">import</span> uvicorn</span><br><span class="line"><span class="keyword">from</span> module.MSG_CALL_BACK <span class="keyword">import</span> MSG_CALL_BACK <span class="comment"># 引入模型类</span></span><br><span class="line"><span class="keyword">from</span> business.router <span class="keyword">import</span> Router <span class="comment"># 引入路由</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app = FastAPI()</span><br><span class="line"><span class="comment"># 解决跨域</span></span><br><span class="line">app.add_middleware(</span><br><span class="line">    CORSMiddleware,</span><br><span class="line">    allow_origins=[<span class="string">&quot;*&quot;</span>],</span><br><span class="line">    allow_credentials=<span class="literal">True</span>,</span><br><span class="line">    allow_methods=[<span class="string">&quot;*&quot;</span>],</span><br><span class="line">    allow_headers=[<span class="string">&quot;*&quot;</span>]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_model</span>(<span class="params">item:MSG_CALL_BACK = Body(<span class="params">...</span>)</span>):</span>   </span><br><span class="line">    Router.handle_post(item) <span class="comment"># 将接收到的消息转交给路由处理</span></span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;status&quot;</span>:<span class="number">1</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:   </span><br><span class="line">    uvicorn.run(app = app, host = <span class="string">&quot;0.0.0.0&quot;</span>, port = <span class="string">&quot;8000&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="试验消息收发功能"><a href="#试验消息收发功能" class="headerlink" title="试验消息收发功能"></a>试验消息收发功能</h2><p>在控制台中输入</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uvicorn main:app --reload</span><br></pre></td></tr></table></figure>
+
+<p>启动服务器</p>
+<p>同时确保MyQQ机器人已经在线，并开启了HTTP API插件的服务</p>
+<p><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121173003878.png" alt="服务器启动"></p>
+<p>此时我们写好的服务器已经开始工作了，我们发送一条消息试试</p>
+<p><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121174258211.png" alt="发送消息"></p>
+<p>成功收到了机器人的回复，此时的控制台输出为</p>
+<p><img src="/%E5%90%88%E9%9B%86/qq%E6%9C%BA%E5%99%A8%E4%BA%BA/%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA/image-20211121174952539.png" alt="image-20211121174952539"></p>
+<p>其中，前三行是我们打印的输出，第四行是MyQQ服务器的返回信息，告诉我们发送的消息已经被成功处理，第五行是本地服务器打印的信息，表示服务器被访问了</p>
+<h2 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h2><p>一个简单的能处理输入输出的qq机器人就搭建完成了，后续还可以在此基础上增加各种功能，比如发送图片，自动点赞，自动发送天气预报，基于人工智能的自动聊天等等</p>
+<h2 id="附件"><a href="#附件" class="headerlink" title="附件"></a>附件</h2><p><a href="code.zip">本文的相关代码</a></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="德依安 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="德依安 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag"># 编程</a>
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E5%90%88%E9%9B%86/%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90/2021.4%20%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90/" rel="prev" title="2021.4动画推荐">
+      <i class="fa fa-chevron-left"></i> 2021.4动画推荐
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/%E5%90%88%E9%9B%86/%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90/2021.7%20%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90/" rel="next" title="2021.7动画推荐">
+      2021.7动画推荐 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EMyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%90%AD%E5%BB%BAqq%E6%9C%BA%E5%99%A8%E4%BA%BA"><span class="nav-number">1.</span> <span class="nav-text">基于MyQQ机器人框架搭建qq机器人</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%86%E5%A4%87"><span class="nav-number">1.2.</span> <span class="nav-text">准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6"><span class="nav-number">1.2.1.</span> <span class="nav-text">MyQQ机器人框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#python"><span class="nav-number">1.2.2.</span> <span class="nav-text">python</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%86%E4%BD%BF%E7%94%A8%E5%88%B0%E7%9A%84python%E7%9B%B8%E5%85%B3%E7%9A%84%E5%8C%85"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">将使用到的python相关的包</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MyQQ%E6%9C%BA%E5%99%A8%E4%BA%BA%E6%A1%86%E6%9E%B6%E6%B6%88%E6%81%AF%E6%94%B6%E5%8F%91"><span class="nav-number">1.3.</span> <span class="nav-text">MyQQ机器人框架消息收发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%9F%BA%E7%A1%80%E7%BB%93%E6%9E%84"><span class="nav-number">1.4.</span> <span class="nav-text">服务器基础结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A5%E6%94%B6%E4%B8%80%E4%B8%AA%E6%B6%88%E6%81%AF"><span class="nav-number">1.5.</span> <span class="nav-text">接收一个消息</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E5%86%99post"><span class="nav-number">1.5.1.</span> <span class="nav-text">编写post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E5%AE%9A%E6%9C%AC%E6%9C%BA%E5%9C%B0%E5%9D%80%E5%92%8C%E7%AB%AF%E5%8F%A3%E5%8F%B7"><span class="nav-number">1.5.2.</span> <span class="nav-text">指定本机地址和端口号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%95%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="nav-number">1.5.3.</span> <span class="nav-text">试验结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E4%B8%80%E6%AD%A5%E5%A4%84%E7%90%86%E6%B6%88%E6%81%AF"><span class="nav-number">1.5.4.</span> <span class="nav-text">进一步处理消息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%B6%88%E6%81%AF%E6%8E%A5%E6%94%B6%E7%9A%84%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="nav-number">1.5.5.</span> <span class="nav-text">实现消息接收的完整代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%91%E9%80%81%E4%B8%80%E4%B8%AA%E6%B6%88%E6%81%AF"><span class="nav-number">1.6.</span> <span class="nav-text">发送一个消息</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#post%E6%96%B9%E5%BC%8F"><span class="nav-number">1.6.1.</span> <span class="nav-text">post方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#get%E6%96%B9%E5%BC%8F"><span class="nav-number">1.6.2.</span> <span class="nav-text">get方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#msg-sender"><span class="nav-number">1.6.2.1.</span> <span class="nav-text">msg_sender</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">1.6.2.1.1.</span> <span class="nav-text">基本结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E9%98%85%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%E7%9A%84api"><span class="nav-number">1.6.2.1.2.</span> <span class="nav-text">查阅发送消息的api</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AEapi%E4%BF%A1%E6%81%AF%E6%9E%84%E5%BB%BA%E5%8F%91%E9%80%81%E5%8F%82%E6%95%B0"><span class="nav-number">1.6.2.1.3.</span> <span class="nav-text">根据api信息构建发送参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BD%AC%E7%A0%81%E6%B6%88%E6%81%AF"><span class="nav-number">1.6.2.1.4.</span> <span class="nav-text">转码消息</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81"><span class="nav-number">1.6.2.1.5.</span> <span class="nav-text">消息发送</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%89%93%E5%8D%B0%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="nav-number">1.6.2.1.6.</span> <span class="nav-text">打印返回值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#msg-sender%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="nav-number">1.6.2.1.7.</span> <span class="nav-text">msg_sender完整代码</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#router"><span class="nav-number">1.6.2.2.</span> <span class="nav-text">router</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="nav-number">1.6.2.2.1.</span> <span class="nav-text">基本结构：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E8%BD%AC%E7%A0%81"><span class="nav-number">1.6.2.2.2.</span> <span class="nav-text">消息转码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%A4%E6%96%AD%E6%B6%88%E6%81%AF%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.6.2.2.3.</span> <span class="nav-text">判断消息类型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF"><span class="nav-number">1.6.2.2.4.</span> <span class="nav-text">发送消息</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#router%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="nav-number">1.6.2.2.5.</span> <span class="nav-text">router完整代码</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B9%E5%86%99main"><span class="nav-number">1.6.2.3.</span> <span class="nav-text">改写main</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%95%E9%AA%8C%E6%B6%88%E6%81%AF%E6%94%B6%E5%8F%91%E5%8A%9F%E8%83%BD"><span class="nav-number">1.7.</span> <span class="nav-text">试验消息收发功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E6%9D%9F"><span class="nav-number">1.8.</span> <span class="nav-text">结束</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%84%E4%BB%B6"><span class="nav-number">1.9.</span> <span class="nav-text">附件</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="德依安"
+      src="/images/dd_avatar_chun.jpg">
+  <p class="site-author-name" itemprop="name">德依安</p>
+  <div class="site-description" itemprop="description">记录一些关于学习、生活、爱好的个人网站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:768003641@qq.com" title="E-Mail → mailto:768003641@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+    </div>
+  </aside>
+
+  <div id="sidebar-dimmer"></div>
+
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-coffee"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">德依安</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">41k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:22</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.8s',
+  mixColor: 'rgba(0,0,0,0.7)',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'Q1of9PPrAVcg9QlttMSouUyg-MdYXbMMI',
+      appKey     : 'aciBvoJbivUq2Wc1AMzKPUsI',
+      placeholder: "都看完了，不来说两句吗OvO",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://q1of9ppr.api.lncldglobal.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

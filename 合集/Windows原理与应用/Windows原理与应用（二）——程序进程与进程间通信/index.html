@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ddg-302.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="本系列是关于Windows原理与应用课程的部分相关笔记。本章节介绍了进程的一些概念和进程通信的方法，并具体了解和实现了管道、重定向方式的进程通信。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows原理与应用（二）——程序进程与进程间通信">
+<meta property="og:url" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/index.html">
+<meta property="og:site_name" content="德依安-BLOG">
+<meta property="og:description" content="本系列是关于Windows原理与应用课程的部分相关笔记。本章节介绍了进程的一些概念和进程通信的方法，并具体了解和实现了管道、重定向方式的进程通信。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB%E5%9B%BE.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/%E8%BF%9B%E7%A8%8B%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84.png">
+<meta property="article:published_time" content="2021-12-03T08:41:16.000Z">
+<meta property="article:modified_time" content="2022-03-14T14:21:39.077Z">
+<meta property="article:author" content="德依安">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="技术">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB%E5%9B%BE.png">
+
+<link rel="canonical" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Windows原理与应用（二）——程序进程与进程间通信 | 德依安-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">德依安-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">奇迹与魔法都是存在的</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">14</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">8</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">13</span></a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-website-404">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>本站404</a>
+
+  </li>
+        <li class="menu-item menu-item-bangumi">
+
+    <a href="/bangumis/" rel="section"><i class="fa fa-tv fa-fw"></i>动画</a>
+
+  </li>
+        <li class="menu-item menu-item-cinema">
+
+    <a href="/cinemas/" rel="section"><i class="fa fa-film fa-fw"></i>电影</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dd_avatar_chun.jpg">
+      <meta itemprop="name" content="德依安">
+      <meta itemprop="description" content="记录一些关于学习、生活、爱好的个人网站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="德依安-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Windows原理与应用（二）——程序进程与进程间通信
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-03 16:41:16" itemprop="dateCreated datePublished" datetime="2021-12-03T16:41:16+08:00">2021-12-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-14 22:21:39" itemprop="dateModified" datetime="2022-03-14T22:21:39+08:00">2022-03-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/" itemprop="url" rel="index"><span itemprop="name">Windows原理与应用</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/" class="post-meta-item leancloud_visitors" data-flag-title="Windows原理与应用（二）——程序进程与进程间通信" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>9 分钟</span>
+            </span>
+            <div class="post-description">本系列是关于Windows原理与应用课程的部分相关笔记。本章节介绍了进程的一些概念和进程通信的方法，并具体了解和实现了管道、重定向方式的进程通信。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="Windows原理与应用（二）——程序进程与进程间通信"><a href="#Windows原理与应用（二）——程序进程与进程间通信" class="headerlink" title="Windows原理与应用（二）——程序进程与进程间通信"></a>Windows原理与应用（二）——程序进程与进程间通信</h1><div class="note info">
+            <h2 id="系列"><a href="#系列" class="headerlink" title="系列"></a>系列</h2><p><a href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/">Windows原理与应用（一）—— 简介 | 德依安-BLOG (ddg-302.github.io)</a></p><p style="color:grey">[本文]Windows原理与应用（二）——程序进程与进程间通信 | 德依安-BLOG (ddg-302.github.io)</p><p><a href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89%E2%80%94%E2%80%94%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%90%8C%E6%AD%A5/">Windows原理与应用（三）——线程间通信与同步 | 德依安-BLOG (ddg-302.github.io)</a></p>
+          </div>
+
+<h2 id="程序、进程与线程"><a href="#程序、进程与线程" class="headerlink" title="程序、进程与线程"></a>程序、进程与线程</h2><ul>
+<li><p>进程与程序不同，它是程序执行时的标志，程序是存放在磁盘中的可执行文件，而进程是程序执行的一个过程，<strong>程序是静态的，进程是动态的</strong></p>
+<p>一个程序可执行多次产生多个进程实例，进程随运行动态变化，进程共享计算机资源、互相通信，由OS管理</p>
+</li>
+<li><p>线程是最小的执行单位，它几乎不拥有系统资源，它是系统调度的基本单位</p>
+<p>在单CPU单核技术中，OS不断切换线程运行，这个过程成为<strong>并发</strong>；多核或多CPU中的程序可以<strong>并行</strong></p>
+<p>一个进程可以拥有多个线程，一个线程只属于一个进程</p>
+</li>
+</ul>
+<h3 id="操作系统中的进程"><a href="#操作系统中的进程" class="headerlink" title="操作系统中的进程"></a>操作系统中的进程</h3><ul>
+<li>操作系统中的进程与用户进程并发运行，用户进程由操作系统创建和调用</li>
+<li>用户进程也可以创建和调用别的进程</li>
+<li>被创建的进程与创建者构成父子关系</li>
+</ul>
+<h3 id="进程与线程的关系图"><a href="#进程与线程的关系图" class="headerlink" title="进程与线程的关系图"></a>进程与线程的关系图</h3><p><img src="/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB%E5%9B%BE.png" alt="进程与线程的关系图"></p>
+<h2 id="进程对象结构"><a href="#进程对象结构" class="headerlink" title="进程对象结构"></a>进程对象结构</h2><p><img src="/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/%E8%BF%9B%E7%A8%8B%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84.png" alt="进程对象结构"></p>
+<ul>
+<li><p>Windows将硬件资源虚拟后分配给进程，还创建多种软件资源</p>
+<p>软件资源分为两类，一类是只能由操作系统管理和使用的<code>内核资源</code>，如权限令牌，底层时间，互斥量等；另一类是用户程序使用的资源，如普通内存空间，文件资源等</p>
+</li>
+<li><p><code>内核资源</code>：每个内核对象是由系统内和创建的一块内存区，这块内存区的数据结构成员对应对象的属性，在初次创建内核对象时，创建函数获得标识这个内核的<code>句柄</code>（<code>HANDLE</code>），句柄只能由特定的API调用，不可以直接操作</p>
+</li>
+<li><p><code>句柄</code>：句柄是一个4B（64位机中为8B）长的数值，用于标识应用程序中的不同实例，要注意<strong>句柄不是指针</strong>，它只是表示一个对象，这个对象的物理地址由操作系统安排，物理地址并不是固定的，但句柄值是固定的，需要使用指定的API才可以操作句柄指向的对象</p>
+<p>句柄是进程相关的，同一个句柄值在不同进程中意义不同</p>
+<p>关闭使用完毕的资源句柄后，系统不会马上销毁它，内核对象生命期可以比创建它的进程长</p>
+</li>
+</ul>
+<h3 id="进程创建过程"><a href="#进程创建过程" class="headerlink" title="进程创建过程"></a>进程创建过程</h3><ol>
+<li>打开文件映像</li>
+<li>创建Windows进程对象</li>
+<li>创建初始线程对象，为其分配内存堆栈、运行上下文</li>
+<li>通知内核系统为进程运行作准备</li>
+<li>执行初始线程</li>
+<li>导入需要的DLL，初始化地址空间，由程序入口地址开始执行进程</li>
+</ol>
+<h2 id="进程的创建与启动-C"><a href="#进程的创建与启动-C" class="headerlink" title="进程的创建与启动 - C#"></a>进程的创建与启动 - C#</h2><ul>
+<li><p>创建wpf工程</p>
+</li>
+<li><p>实例化一个Process类并打开应用程序，Process类在System.Diagnostics命名空间下</p>
+</li>
+</ul>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System.Diagnostics;</span><br><span class="line"></span><br><span class="line">Process mycmd = <span class="keyword">new</span> Process();</span><br><span class="line">mycmd.StartInfo.FileName = <span class="string">&quot;cmd.exe&quot;</span>;<span class="comment">// 设置启动程序</span></span><br><span class="line">mycmd.StartInfo.CreateNoWindow = <span class="literal">true</span>;<span class="comment">// 不开启窗口</span></span><br><span class="line">mycmd.StartInfo.UseShellExecute = <span class="literal">false</span>; <span class="comment">// 不使用shell</span></span><br><span class="line">mycmd.StartInfo.RedirectStandardOutput = <span class="literal">true</span>; <span class="comment">// 重定向输入输出</span></span><br><span class="line">mycmd.StartInfo.RedirectStandardInput = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">mycmd.Start(); <span class="comment">// 启动进程 </span></span><br><span class="line">			 <span class="comment">// 这个函数有返回值，true为启动成功，false为启动失败</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>关闭应用程序</li>
+</ul>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 法1</span></span><br><span class="line">mycmd.Kill(); <span class="comment">// 直接杀死进程</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 法2</span></span><br><span class="line"><span class="comment">// 得到程序中所有正在运行的进程</span></span><br><span class="line">Process[] preo = Process.GetProcesses(); </span><br><span class="line"><span class="keyword">foreach</span>(<span class="keyword">var</span> item <span class="keyword">in</span> preo)&#123;</span><br><span class="line">    item.Kill(); <span class="comment">// 杀死进程</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="进程间通信"><a href="#进程间通信" class="headerlink" title="进程间通信"></a>进程间通信</h2><ul>
+<li>高级通信（<u>IPC</u><sup id="fnref:1"><a href="#fn:1" rel="footnote"><span class="hint--top hint--error hint--medium hint--rounded hint--bounce" aria-label="IPC：interproces communications，是通信进程处于同一台机器中的通信机制，IPC经常使用C/S模式">[1]</span></a></sup>）<ul>
+<li>传输数据量大，超过几十个字节</li>
+</ul>
+</li>
+<li>低级通信（同步控制）<ul>
+<li>传输数据量小，少于数个字节，或仅是位单位</li>
+</ul>
+</li>
+</ul>
+<h3 id="进程间通信方法分类"><a href="#进程间通信方法分类" class="headerlink" title="进程间通信方法分类"></a>进程间通信方法分类</h3><ol>
+<li>共享内存（剪贴板、COM、DLL、DDE、文件映射）</li>
+<li>消息WM_COPYDATA</li>
+<li>邮槽</li>
+<li>管道（有名管道，无名管道）</li>
+<li>Windows套接字</li>
+<li>NetBIOS特殊的网络应用</li>
+</ol>
+<h3 id="IPC选择考虑"><a href="#IPC选择考虑" class="headerlink" title="IPC选择考虑"></a>IPC选择考虑</h3><ol>
+<li>通信主题是进程内的线程还是不同进程之间</li>
+<li>进程是需要网络还是本地机制</li>
+<li>通信的进程运行的OS是否有差异</li>
+<li>有些进程通信机制是只用于图形化窗体界面的，而不适用于控制台程序</li>
+<li>通信目的是用于同步控制还是大量数据的交换</li>
+</ol>
+<h3 id="管道通信"><a href="#管道通信" class="headerlink" title="管道通信"></a>管道通信</h3><p>由操作系统创建管道对象，发送进程向管道中写数据，接收进程从管道中读数据</p>
+<ul>
+<li><p>无名管道</p>
+<ul>
+<li>只能在单一进程内使用</li>
+</ul>
+</li>
+<li><p>有名管道</p>
+<ul>
+<li>以「文件名」来表示，可以用于不同进程间通信</li>
+</ul>
+</li>
+</ul>
+<h3 id="管道通信实现"><a href="#管道通信实现" class="headerlink" title="管道通信实现"></a>管道通信实现</h3><ol>
+<li>建立连接：服务端创建命名管道NamedPipeServerStream类实例，调用WaitForConnection方法等待连接，这个函数将阻塞线程</li>
+<li>通信实现：建立连接后，客户端和服务端可以通过Stream流的Read方法和Write方法进行读写通信</li>
+<li>连接终止：任何一方使用Close方法可以关闭管道连接</li>
+</ol>
+<p>服务端：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">NamedPipeServerStream pipeserver; <span class="comment">// 实例化</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start_listen</span>(<span class="params"></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 由于WaitForConnection()会阻塞线程，而这服务端客户端都写在一个进程内，所以要开启一个进程避免进程卡死</span></span><br><span class="line">    Task task = <span class="keyword">new</span> Task(() =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            pipeserver = <span class="keyword">new</span> NamedPipeServerStream(<span class="string">&quot;my_pipe&quot;</span>, PipeDirection.InOut, <span class="number">2</span>, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);<span class="comment">// (管道名， 确定管道方向枚举值， 共享同一服务器实例的最大数量， 确定管道传输模式)</span></span><br><span class="line">            pipeserver.WaitForConnection();</span><br><span class="line">            receive_msg(); <span class="comment">// 收到消息，调用处理</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;);</span><br><span class="line">    task.Start();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">receive_msg</span>(<span class="params"></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 新建Stream流准备读写</span></span><br><span class="line">    StreamReader sreader = <span class="keyword">new</span> StreamReader(pipeserver);</span><br><span class="line">    StreamWriter swriter = <span class="keyword">new</span> StreamWriter(pipeserver);</span><br><span class="line">    swriter.AutoFlush = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">string</span> msg = sreader.ReadLine(); <span class="comment">// 读管道内的消息</span></span><br><span class="line">    <span class="keyword">if</span> (msg == <span class="literal">null</span>)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    Console.WriteLine(msg);</span><br><span class="line">    swriter.WriteLine(<span class="string">&quot;信息接收完毕&quot;</span>); <span class="comment">// 回复消息给发送方</span></span><br><span class="line">    swriter.Close(); <span class="comment">// 关闭管道连接</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>客户端：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">NamedPipeClientStream pclient = <span class="keyword">new</span> NamedPipeClientStream(<span class="string">&quot;.&quot;</span>, <span class="string">&quot;my_pipe&quot;</span>, PipeDirection.InOut); <span class="comment">// 客户端连接名为「my_pipe」的管道</span></span><br><span class="line"></span><br><span class="line">Task task = <span class="keyword">new</span> Task(() =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!pclient.IsConnected)</span><br><span class="line">            pclient.Connect(<span class="number">10000</span>); <span class="comment">// 设置超时等待</span></span><br><span class="line">    &#125;</span><br><span class="line">    catch</span><br><span class="line">    &#123;</span><br><span class="line">        MessageBox.Show(<span class="string">&quot;连接超时！&quot;</span>, <span class="string">&quot;警告&quot;</span>, MessageBoxButton.OK, MessageBoxImage.Warning);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 准备stream</span></span><br><span class="line">    StreamWriter swriter = <span class="keyword">new</span> StreamWriter(pclient); </span><br><span class="line">    swriter.AutoFlush = <span class="literal">true</span>;</span><br><span class="line">    StreamReader sreader = <span class="keyword">new</span> StreamReader(pclient);</span><br><span class="line">    </span><br><span class="line">    swriter.WriteLine(msg); <span class="comment">// 发送消息</span></span><br><span class="line">    <span class="built_in">string</span> return_msg = sreader.ReadLine(); <span class="comment">// 接收管道发回的消息</span></span><br><span class="line">    Console.WriteLine(return_msg);</span><br><span class="line">&#125;);</span><br><span class="line">task.Start();</span><br></pre></td></tr></table></figure>
+
+<h3 id="重定向方式"><a href="#重定向方式" class="headerlink" title="重定向方式"></a>重定向方式</h3><ul>
+<li><p>控制台进程文件描述符</p>
+<ul>
+<li>标准输入</li>
+<li>标准输出</li>
+<li>标准错误输出</li>
+</ul>
+</li>
+<li><p>普通进程</p>
+<ul>
+<li>从键盘接收输入→输出到屏幕</li>
+</ul>
+</li>
+<li><p>重定向</p>
+<ul>
+<li>从文件输入→屏幕输出</li>
+<li>……</li>
+</ul>
+</li>
+<li><p>例子</p>
+<ul>
+<li>使用控制台重定向符<code>&gt;</code>和<code>&lt;</code></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dir &gt; file.txt // 将dir指令的输出存放到file.txt中</span><br><span class="line">cmd &gt;&gt; file.txt // 将接下来的所有屏幕输出都存放到file.txt，输入exit退出</span><br><span class="line">cmd &lt; file.txt // 将file.txt中的指令输出到cmd</span><br></pre></td></tr></table></figure>
+
+<p>使用控制台重定向获取控制台输出实例</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System.Diagnostics;</span><br><span class="line"></span><br><span class="line">Process mycmd = <span class="keyword">new</span> Process();</span><br><span class="line">mycmd.StartInfo.FileName = <span class="string">&quot;cmd.exe&quot;</span>;<span class="comment">// 设置启动程序</span></span><br><span class="line">mycmd.StartInfo.CreateNoWindow = <span class="literal">true</span>;<span class="comment">// 不开启窗口</span></span><br><span class="line">mycmd.StartInfo.UseShellExecute = <span class="literal">false</span>; <span class="comment">// 不使用shell</span></span><br><span class="line">mycmd.StartInfo.RedirectStandardOutput = <span class="literal">true</span>; <span class="comment">// 重定向输入输出</span></span><br><span class="line">mycmd.StartInfo.RedirectStandardInput = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">mycmd.Start(); <span class="comment">// 启动进程 </span></span><br><span class="line">			 <span class="comment">// 这个函数有返回值，true为启动成功，false为启动失败</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">excute_command</span>(<span class="params"><span class="built_in">string</span> command</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// StandardInput重定向输入</span></span><br><span class="line">    mycmd.StandardInput.WriteLine(command);</span><br><span class="line">    Console.WriteLine(<span class="string">&quot;输入&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 按行读取</span></span><br><span class="line">        <span class="comment">// StandardOutput重定向输出</span></span><br><span class="line">        Console.WriteLine(mycmd.StandardOutput.ReadLine());</span><br><span class="line">        <span class="keyword">if</span> (mycmd.StandardOutput.EndOfStream)</span><br><span class="line">            <span class="keyword">break</span>; <span class="comment">// 读完退出</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><ol>
+<li>通过重定向机制实现进程间通信<ul>
+<li>调用getmac获取网卡mac</li>
+<li>调用shutdown命令关闭或重启电脑</li>
+</ul>
+</li>
+<li>通过管道机制实现进程间通信<ul>
+<li>客户端向服务端发送数据</li>
+<li>服务端显示数据</li>
+</ul>
+</li>
+</ol>
+<p>程序将会以WPF窗体程序的形式呈现，为了让输出显示在窗体上，将不使用Console.WriteLine()方法，而是会有一些特殊的处理，这也将在之后整理放出</p>
+<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style: none; padding-left: 0; margin-left: 40px"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px; margin-left: -40px">1.</span><span style="display: inline-block; vertical-align: top; margin-left: 10px;">IPC：interproces communications，是通信进程处于同一台机器中的通信机制，IPC经常使用C/S模式<a href="#fnref:1" rev="footnote"> ↩</a></span></li></ol></div></div>
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="德依安 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="德依安 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag"># 编程</a>
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" rel="prev" title="Windows原理与应用（一）——简介">
+      <i class="fa fa-chevron-left"></i> Windows原理与应用（一）——简介
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%B8%89%EF%BC%89%E2%80%94%E2%80%94%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E4%B8%8E%E5%90%8C%E6%AD%A5/" rel="next" title="Windows原理与应用（三）——线程间通信与同步">
+      Windows原理与应用（三）——线程间通信与同步 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1"><span class="nav-number">1.</span> <span class="nav-text">Windows原理与应用（二）——程序进程与进程间通信</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E5%88%97"><span class="nav-number">1.1.</span> <span class="nav-text">系列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E3%80%81%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">程序、进程与线程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E8%BF%9B%E7%A8%8B"><span class="nav-number">1.2.1.</span> <span class="nav-text">操作系统中的进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB%E5%9B%BE"><span class="nav-number">1.2.2.</span> <span class="nav-text">进程与线程的关系图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84"><span class="nav-number">1.3.</span> <span class="nav-text">进程对象结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B"><span class="nav-number">1.3.1.</span> <span class="nav-text">进程创建过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E5%90%AF%E5%8A%A8-C"><span class="nav-number">1.4.</span> <span class="nav-text">进程的创建与启动 - C#</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1"><span class="nav-number">1.5.</span> <span class="nav-text">进程间通信</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E6%96%B9%E6%B3%95%E5%88%86%E7%B1%BB"><span class="nav-number">1.5.1.</span> <span class="nav-text">进程间通信方法分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IPC%E9%80%89%E6%8B%A9%E8%80%83%E8%99%91"><span class="nav-number">1.5.2.</span> <span class="nav-text">IPC选择考虑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%A1%E9%81%93%E9%80%9A%E4%BF%A1"><span class="nav-number">1.5.3.</span> <span class="nav-text">管道通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%A1%E9%81%93%E9%80%9A%E4%BF%A1%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.5.4.</span> <span class="nav-text">管道通信实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%AE%9A%E5%90%91%E6%96%B9%E5%BC%8F"><span class="nav-number">1.5.5.</span> <span class="nav-text">重定向方式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%83%E4%B9%A0"><span class="nav-number">1.6.</span> <span class="nav-text">练习</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="德依安"
+      src="/images/dd_avatar_chun.jpg">
+  <p class="site-author-name" itemprop="name">德依安</p>
+  <div class="site-description" itemprop="description">记录一些关于学习、生活、爱好的个人网站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:768003641@qq.com" title="E-Mail → mailto:768003641@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+    </div>
+  </aside>
+
+  <div id="sidebar-dimmer"></div>
+
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-coffee"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">德依安</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">41k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:22</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.8s',
+  mixColor: 'rgba(0,0,0,0.7)',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'Q1of9PPrAVcg9QlttMSouUyg-MdYXbMMI',
+      appKey     : 'aciBvoJbivUq2Wc1AMzKPUsI',
+      placeholder: "都看完了，不来说两句吗OvO",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://q1of9ppr.api.lncldglobal.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
