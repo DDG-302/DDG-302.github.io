@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="generator" content="Hexo 5.4.2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -27,15 +27,15 @@
 <meta property="og:site_name" content="德依安-BLOG">
 <meta property="og:description" content="本系列是关于Windows原理与应用课程的部分相关笔记。本章节介绍了进程的一些概念和进程通信的方法，并具体了解和实现了管道、重定向方式的进程通信。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB%E5%9B%BE.png">
-<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/%E8%BF%9B%E7%A8%8B%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="https://ddg-302.github.io/.io//%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB%E5%9B%BE.png">
+<meta property="og:image" content="https://ddg-302.github.io/.io//%E8%BF%9B%E7%A8%8B%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84.png">
 <meta property="article:published_time" content="2021-12-03T08:41:16.000Z">
 <meta property="article:modified_time" content="2022-03-14T14:21:39.077Z">
 <meta property="article:author" content="德依安">
 <meta property="article:tag" content="编程">
 <meta property="article:tag" content="技术">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB%E5%9B%BE.png">
+<meta name="twitter:image" content="https://ddg-302.github.io/.io//%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB%E5%9B%BE.png">
 
 <link rel="canonical" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/">
 
@@ -81,7 +81,7 @@
   </style>
 </noscript>
 
-<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}</style></head>
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
   <div class="container use-motion">
@@ -323,8 +323,8 @@
 <li>用户进程也可以创建和调用别的进程</li>
 <li>被创建的进程与创建者构成父子关系</li>
 </ul>
-<h3 id="进程与线程的关系图"><a href="#进程与线程的关系图" class="headerlink" title="进程与线程的关系图"></a>进程与线程的关系图</h3><p><img src="/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB%E5%9B%BE.png" alt="进程与线程的关系图"></p>
-<h2 id="进程对象结构"><a href="#进程对象结构" class="headerlink" title="进程对象结构"></a>进程对象结构</h2><p><img src="/%E5%90%88%E9%9B%86/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8/Windows%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89%E2%80%94%E2%80%94%E7%A8%8B%E5%BA%8F%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/%E8%BF%9B%E7%A8%8B%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84.png" alt="进程对象结构"></p>
+<h3 id="进程与线程的关系图"><a href="#进程与线程的关系图" class="headerlink" title="进程与线程的关系图"></a>进程与线程的关系图</h3><p><img src="/.io//%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB%E5%9B%BE.png" alt="进程与线程的关系图"></p>
+<h2 id="进程对象结构"><a href="#进程对象结构" class="headerlink" title="进程对象结构"></a>进程对象结构</h2><p><img src="/.io//%E8%BF%9B%E7%A8%8B%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84.png" alt="进程对象结构"></p>
 <ul>
 <li><p>Windows将硬件资源虚拟后分配给进程，还创建多种软件资源</p>
 <p>软件资源分为两类，一类是只能由操作系统管理和使用的<code>内核资源</code>，如权限令牌，底层时间，互斥量等；另一类是用户程序使用的资源，如普通内存空间，文件资源等</p>
@@ -692,7 +692,7 @@
   
 
   
-<script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
 
 <script>
 var options = {
