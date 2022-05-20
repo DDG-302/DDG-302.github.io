@@ -36,7 +36,7 @@
 <meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519203017685.png">
 <meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519203807731.png">
 <meta property="article:published_time" content="2022-05-05T09:29:50.000Z">
-<meta property="article:modified_time" content="2022-05-20T09:27:08.657Z">
+<meta property="article:modified_time" content="2022-05-20T09:30:00.856Z">
 <meta property="article:author" content="德依安">
 <meta property="article:tag" content="编程">
 <meta property="article:tag" content="技术">
@@ -253,7 +253,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-20 17:27:08" itemprop="dateModified" datetime="2022-05-20T17:27:08+08:00">2022-05-20</time>
+                <time title="修改时间：2022-05-20 17:30:00" itemprop="dateModified" datetime="2022-05-20T17:30:00+08:00">2022-05-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -292,7 +292,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>5.5k</span>
+              <span>5.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -357,17 +357,17 @@
 <li>检查TBE，等待其为1</li>
 <li>数据写入<code>发送缓冲区</code></li>
 <li>等待RBNE为1</li>
-<li>读<code>接受缓冲区</code>以清空RBNE标志位</li>
+<li>读<code>接收缓冲区</code>以清空RBNE标志位</li>
 </ol>
 <p>主机发送信息且需要接收回复时：</p>
 <ol>
 <li>检查TBE，等待其为1</li>
 <li>数据写入<code>发送缓冲区</code></li>
 <li>等待RBNE为1</li>
-<li>读<code>接受缓冲区</code>以清空RBNE标志位</li>
+<li>读<code>接收缓冲区</code>以清空RBNE标志位</li>
 <li><strong>把一个废数据（或者对从机来说是空指令的数据，一般为0x0）写入<code>发送缓冲区</code></strong></li>
 <li><strong>等待RBNE为1</strong></li>
-<li><strong>读<code>接受缓冲区</code>以获得返回数据</strong></li>
+<li><strong>读<code>接收缓冲区</code>以获得返回数据</strong></li>
 </ol>
 <p>注意主机发送一条消息后，如果还要获得回复，那么必须要再写入一条废数据（空指令）来让<code>发送缓冲区</code>非空，从而让硬件能接收返回的数据帧。</p>
 <h2 id="RVSTAR使用SPI编程实现"><a href="#RVSTAR使用SPI编程实现" class="headerlink" title="RVSTAR使用SPI编程实现"></a>RVSTAR使用SPI编程实现</h2><p>首先说明，SPI并非很复杂的通信协议，所以在掌握了上文描述的SPI通信原理后，完全可以通过简单地GPIO手动控制时钟翻转和数据输入输出，但是这里介绍由芯片提供的SPI功能实现。</p>
@@ -395,7 +395,7 @@
 </ul>
 </li>
 <li>clock_polarity_phase<ul>
-<li><img src="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519203807731.png" alt="image-20220519203807731"><br>更多信息查阅其他资料</li>
+<li><img src="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519203807731.png" alt="image-20220519203807731"><br>可参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/liu__ke/article/details/17526087">SPI相位跟极性介绍_Fields_Of_Gold的博客-CSDN博客_spi相位和极性</a></li>
 </ul>
 </li>
 <li>endian<ul>
