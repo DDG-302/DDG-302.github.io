@@ -27,14 +27,14 @@
 <meta property="og:site_name" content="德依安-BLOG">
 <meta property="og:description" content="使用RV-STAR开发板库函数编程进行最基础的SPI通信。根据官网上的SPI通信例程和文档，较为详细地介绍了RV-STAR的SPI通信。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://ddg-302.github.io/.io//image-20220519180540056.png">
-<meta property="og:image" content="https://ddg-302.github.io/.io//image-20220519181116970.png">
-<meta property="og:image" content="https://ddg-302.github.io/.io//image-20220519181123484.png">
-<meta property="og:image" content="https://ddg-302.github.io/.io//image-20220519181133572.png">
-<meta property="og:image" content="https://ddg-302.github.io/.io//image-20220519181429590.png">
-<meta property="og:image" content="https://ddg-302.github.io/.io//image-20220519202439254.png">
-<meta property="og:image" content="https://ddg-302.github.io/.io//image-20220519203017685.png">
-<meta property="og:image" content="https://ddg-302.github.io/.io//image-20220519203807731.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519180540056.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181116970.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181123484.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181133572.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519181429590.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519202439254.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519203017685.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519203807731.png">
 <meta property="article:published_time" content="2022-05-05T09:29:50.000Z">
 <meta property="article:modified_time" content="2022-05-20T09:30:00.856Z">
 <meta property="article:author" content="德依安">
@@ -42,7 +42,7 @@
 <meta property="article:tag" content="技术">
 <meta property="article:tag" content="嵌入式">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://ddg-302.github.io/.io//image-20220519180540056.png">
+<meta name="twitter:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/image-20220519180540056.png">
 
 <link rel="canonical" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/RV-STAR%E5%BC%80%E5%8F%91%E6%9D%BFSPI%E9%80%9A%E4%BF%A1/">
 
@@ -334,13 +334,13 @@
             <p>SPI发送没有复杂的数据格式，没有数据报头，没有数据报尾。<br>如果要发送8位数据，那么发送和接收到的就是简单的8个二进制位。信息发送的同步方式由主机的使能信号和时钟信号控制。</p>
           </div>  
 
-<h3 id="全双工运行模式"><a href="#全双工运行模式" class="headerlink" title="全双工运行模式"></a>全双工运行模式</h3><p><img src="/.io//image-20220519180540056.png" alt="image-20220519180540056"></p>
+<h3 id="全双工运行模式"><a href="#全双工运行模式" class="headerlink" title="全双工运行模式"></a>全双工运行模式</h3><p><img src="image-20220519180540056.png" alt="image-20220519180540056"></p>
 <p>在全双工下，需要同时用到四根线，这也是最标准的SPI通信方式，主从双方通过上述通信步骤通信</p>
-<h3 id="单工模式"><a href="#单工模式" class="headerlink" title="单工模式"></a>单工模式</h3><p><img src="/.io//image-20220519181116970.png" alt="image-20220519181116970"></p>
-<p><img src="/.io//image-20220519181123484.png" alt="image-20220519181123484"></p>
-<p><img src="/.io//image-20220519181133572.png" alt="image-20220519181133572"></p>
+<h3 id="单工模式"><a href="#单工模式" class="headerlink" title="单工模式"></a>单工模式</h3><p><img src="image-20220519181116970.png" alt="image-20220519181116970"></p>
+<p><img src="image-20220519181123484.png" alt="image-20220519181123484"></p>
+<p><img src="image-20220519181133572.png" alt="image-20220519181133572"></p>
 <p>以上各种方式都是只能单向通信，或同时只能单方发送的工作模式，在这种工作模式下只需要用到三根线，但是相比全双工模式会有一定的限制，在使用一些功能单一的从机时可能会用到。</p>
-<h2 id="RVSTAR的SPI发送与接收流程（只介绍主机模式）"><a href="#RVSTAR的SPI发送与接收流程（只介绍主机模式）" class="headerlink" title="RVSTAR的SPI发送与接收流程（只介绍主机模式）"></a>RVSTAR的SPI发送与接收流程（只介绍主机模式）</h2><h3 id="SPI结构图"><a href="#SPI结构图" class="headerlink" title="SPI结构图"></a>SPI结构图</h3><p><img src="/.io//image-20220519181429590.png" alt="image-20220519181429590"></p>
+<h2 id="RVSTAR的SPI发送与接收流程（只介绍主机模式）"><a href="#RVSTAR的SPI发送与接收流程（只介绍主机模式）" class="headerlink" title="RVSTAR的SPI发送与接收流程（只介绍主机模式）"></a>RVSTAR的SPI发送与接收流程（只介绍主机模式）</h2><h3 id="SPI结构图"><a href="#SPI结构图" class="headerlink" title="SPI结构图"></a>SPI结构图</h3><p><img src="image-20220519181429590.png" alt="image-20220519181429590"></p>
 <div class="note info">
             <p>注意，软件应当通过读写SPI_DATA寄存器来将数据存入<code>发送缓冲区</code>和读取<code>接收缓冲区</code>，在下文中为方便理解，全部表述为「写<code>发送缓冲区</code>」和「读<code>接收缓冲区</code>」</p>
           </div>
@@ -379,11 +379,11 @@
 <li>GPIO初始化为复用模式</li>
 </ol>
 <p>查阅手册可知PA5/PA6/PA7可以复用为SPI功能</p>
-<p><img src="/.io//image-20220519202439254.png" alt="image-20220519202439254"></p>
+<p><img src="image-20220519202439254.png" alt="image-20220519202439254"></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">   rcu_periph_clock_enable(RCU_GPIOA); <span class="comment">// GPIOA时钟</span></span><br><span class="line">   rcu_periph_clock_enable(RCU_AF); <span class="comment">// 复用时钟</span></span><br><span class="line">   rcu_periph_clock_enable(RCU_SPI0); <span class="comment">// SPI0时钟</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// PA5和PA7作为输出口，设置为O推挽复用输出</span></span><br><span class="line">   gpio_init(GPIOA, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_5 | GPIO_PIN_7);</span><br><span class="line"><span class="comment">// PA6作为主机输入，设置为浮空模式</span></span><br><span class="line">   gpio_init(GPIOA, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_6);</span><br></pre></td></tr></table></figure>
 
 <h3 id="SPI配置"><a href="#SPI配置" class="headerlink" title="SPI配置"></a>SPI配置</h3><p>SPI配置主要是要配合从机的工作方式，例如从机的信号读取边沿、从机能接受的信息传输速率、从机的大小端接收方式等等。其配置方式由结构体<code>spi_parameter_struct</code>决定，其属性如下：</p>
-<p><img src="/.io//image-20220519203017685.png" alt="image-20220519203017685"></p>
+<p><img src="image-20220519203017685.png" alt="image-20220519203017685"></p>
 <p>这里解释几个比较不好理解的参数：</p>
 <ul>
 <li>frame_size<ul>
@@ -395,7 +395,7 @@
 </ul>
 </li>
 <li>clock_polarity_phase<ul>
-<li><img src="/.io//image-20220519203807731.png" alt="image-20220519203807731"><br>可参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/liu__ke/article/details/17526087">SPI相位跟极性介绍_Fields_Of_Gold的博客-CSDN博客_spi相位和极性</a></li>
+<li><img src="image-20220519203807731.png" alt="image-20220519203807731"><br>可参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/liu__ke/article/details/17526087">SPI相位跟极性介绍_Fields_Of_Gold的博客-CSDN博客_spi相位和极性</a></li>
 </ul>
 </li>
 <li>endian<ul>
@@ -453,7 +453,7 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/%E5%90%88%E9%9B%86/%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90/2021.10%20%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90/" rel="prev" title="2021.10动画推荐">
+    <a href="/%E5%90%88%E9%9B%86/%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90/2021_10%20%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90/" rel="prev" title="2021.10动画推荐">
       <i class="fa fa-chevron-left"></i> 2021.10动画推荐
     </a></div>
       <div class="post-nav-item">
