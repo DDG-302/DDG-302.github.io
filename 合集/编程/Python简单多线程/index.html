@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ddg-302.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="使用Python线程池的多线程开发，包含线程创建、线程返回值的获取。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python简单多线程">
+<meta property="og:url" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Python%E7%AE%80%E5%8D%95%E5%A4%9A%E7%BA%BF%E7%A8%8B/index.html">
+<meta property="og:site_name" content="德依安-BLOG">
+<meta property="og:description" content="使用Python线程池的多线程开发，包含线程创建、线程返回值的获取。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-28T06:49:43.000Z">
+<meta property="article:modified_time" content="2023-02-28T08:38:20.673Z">
+<meta property="article:author" content="德依安">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="技术">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Python%E7%AE%80%E5%8D%95%E5%A4%9A%E7%BA%BF%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Python简单多线程 | 德依安-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">德依安-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">奇迹与魔法都是存在的</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">18</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">9</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">15</span></a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-website-404">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>本站404</a>
+
+  </li>
+        <li class="menu-item menu-item-bangumi">
+
+    <a href="/bangumis/" rel="section"><i class="fa fa-tv fa-fw"></i>动画</a>
+
+  </li>
+        <li class="menu-item menu-item-cinema">
+
+    <a href="/cinemas/" rel="section"><i class="fa fa-film fa-fw"></i>电影</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    <!-- https://cdn.jsdelivr.net/npm/sakana-widget@2.2.2/lib/sakana.min.js -->
+<!-- https://cdnjs.cloudflare.com/ajax/libs/sakana-widget/2.2.2/sakana.min.js -->
+<!-- https://github.com/dsrkafuu/sakana-widget -->
+<div id="sakana-widget" style="position:fixed; bottom:10px; right:10px; z-index:1;" ></div>
+<script>
+  function initSakanaWidget() {
+    const takina_slow = SakanaWidget.getCharacter('takina');
+    takina_slow.initialState = {
+      ...takina_slow.initialState,
+      i: 0.01,
+      d: 0.997,
+    };
+    SakanaWidget.registerCharacter('takina', takina_slow);
+
+    const chisato_slow = SakanaWidget.getCharacter('chisato');
+    chisato_slow.initialState = {
+      ...chisato_slow.initialState,
+      i: 0.01,
+      d: 0.996,
+    };
+    SakanaWidget.registerCharacter('chisato', chisato_slow);
+
+    new SakanaWidget({character:"takina"}).mount('#sakana-widget');
+  }
+  
+</script>
+
+<script
+  async
+  onload="initSakanaWidget()"
+  src="/js/sakana.min.js"
+></script>
+
+<!-- 以上是sakana插件 -->
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Python%E7%AE%80%E5%8D%95%E5%A4%9A%E7%BA%BF%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dd_avatar_chun.jpg">
+      <meta itemprop="name" content="德依安">
+      <meta itemprop="description" content="记录一些关于学习、生活、爱好的个人网站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="德依安-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python简单多线程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-02-28 14:49:43 / 修改时间：16:38:20" itemprop="dateCreated datePublished" datetime="2023-02-28T14:49:43+08:00">2023-02-28</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">编程</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Python%E7%AE%80%E5%8D%95%E5%A4%9A%E7%BA%BF%E7%A8%8B/" class="post-meta-item leancloud_visitors" data-flag-title="Python简单多线程" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Python%E7%AE%80%E5%8D%95%E5%A4%9A%E7%BA%BF%E7%A8%8B/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Python%E7%AE%80%E5%8D%95%E5%A4%9A%E7%BA%BF%E7%A8%8B/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>10 分钟</span>
+            </span>
+            <div class="post-description">使用Python线程池的多线程开发，包含线程创建、线程返回值的获取。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="线程池使用"><a href="#线程池使用" class="headerlink" title="线程池使用"></a>线程池使用</h1><h2 id="1-基本用法"><a href="#1-基本用法" class="headerlink" title="1. 基本用法"></a>1. 基本用法</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> concurrent.futures</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;thread start!&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="comment"># 1. 导入设定线程池大小</span></span><br><span class="line">thread_num = <span class="number">3</span></span><br><span class="line"><span class="keyword">with</span> concurrent.futures.ThreadPoolExecutor(max_workers=thread_num) <span class="keyword">as</span> pool:</span><br><span class="line">    <span class="comment"># 用with控制，可以不用显示调用pool.shutdown(wait=True)函数</span></span><br><span class="line">    <span class="comment"># 2. 调用submit函数向线程池提交任务，当线程池有空余时，线程池会自动启动线程，这个过程不需要人工控制</span></span><br><span class="line">    pool.submit(func)</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-获取线程工作状态"><a href="#2-获取线程工作状态" class="headerlink" title="2. 获取线程工作状态"></a>2. 获取线程工作状态</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> concurrent.futures</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;thread start!&quot;</span>)</span><br><span class="line">    time.sleep(<span class="number">5</span>)</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="comment"># 1. 导入设定线程池大小</span></span><br><span class="line">thread_num = <span class="number">3</span></span><br><span class="line"><span class="keyword">with</span> concurrent.futures.ThreadPoolExecutor(max_workers=thread_num) <span class="keyword">as</span> pool:</span><br><span class="line">    <span class="comment"># 用with控制，可以不用显示调用pool.shutdown(wait=True)函数</span></span><br><span class="line">    <span class="comment"># 2. 调用submit函数向线程池提交任务，当线程池有空余时，线程池会自动启动线程，这个过程不需要人工控制</span></span><br><span class="line">    <span class="comment"># 2.1. 同时用一个变量接收返回值</span></span><br><span class="line">    future = pool.submit(func)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 3. 调用done()判断线程是否结束</span></span><br><span class="line">    <span class="comment"># 注意done()不会阻塞线程, 如果done()为false则会直接跳过</span></span><br><span class="line">    <span class="keyword">if</span> future.done():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;thread done!&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;thread not done!&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-获取线程返回值"><a href="#3-获取线程返回值" class="headerlink" title="3. 获取线程返回值"></a>3. 获取线程返回值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> concurrent.futures</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;thread start!&quot;</span>)</span><br><span class="line">    time.sleep(<span class="number">5</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;func return!&quot;</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="comment"># 1. 导入设定线程池大小</span></span><br><span class="line">thread_num = <span class="number">3</span></span><br><span class="line"><span class="keyword">with</span> concurrent.futures.ThreadPoolExecutor(max_workers=thread_num) <span class="keyword">as</span> pool:</span><br><span class="line">    <span class="comment"># 用with控制，可以不用显示调用pool.shutdown(wait=True)函数</span></span><br><span class="line">    <span class="comment"># 2. 调用submit函数向线程池提交任务，当线程池有空余时，线程池会自动启动线程，这个过程不需要人工控制</span></span><br><span class="line">    <span class="comment"># 2.1. 同时用一个变量接收返回值</span></span><br><span class="line">    future = pool.submit(func)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 3. 调用result()获取线程返回值</span></span><br><span class="line">    <span class="comment"># 注意result()会阻塞线程，一直等待直到获得返回值</span></span><br><span class="line">    <span class="built_in">print</span>(future.result())</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    thread start!</span></span><br><span class="line"><span class="string">    func return!</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-向线程传递参数"><a href="#4-向线程传递参数" class="headerlink" title="4. 向线程传递参数"></a>4. 向线程传递参数</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> concurrent.futures</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span>(<span class="params">thread_idx, sleep_secs</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;thread_idx = %d&quot;</span> % thread_idx)</span><br><span class="line">    time.sleep(sleep_secs)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;thread_%d sleep_secs:%d return!&quot;</span> % (thread_idx, sleep_secs)</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="comment"># 1. 导入设定线程池大小</span></span><br><span class="line">thread_num = <span class="number">3</span></span><br><span class="line"><span class="keyword">with</span> concurrent.futures.ThreadPoolExecutor(max_workers=thread_num) <span class="keyword">as</span> pool:</span><br><span class="line">    <span class="comment"># 用with控制，可以不用显示调用pool.shutdown(wait=True)函数</span></span><br><span class="line">    <span class="comment"># 2. 调用submit函数向线程池提交任务，当线程池有空余时，线程池会自动启动线程，这个过程不需要人工控制</span></span><br><span class="line">    <span class="comment"># 2.1. 同时用一个变量接收返回值</span></span><br><span class="line">    <span class="comment"># 2.2. 目标函数后面可以直接按顺序接多个参数</span></span><br><span class="line">    future1 = pool.submit(func, <span class="number">1</span>, <span class="number">4</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 2.3. 也可以这样</span></span><br><span class="line">    params = (<span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line">    future2 = pool.submit(func, *params)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 2.4. 也可以用map指定参数名</span></span><br><span class="line">    params_map = &#123;</span><br><span class="line">        <span class="string">&quot;sleep_secs&quot;</span> : <span class="number">2</span>,</span><br><span class="line">        <span class="string">&quot;thread_idx&quot;</span> : <span class="number">3</span></span><br><span class="line">    &#125;</span><br><span class="line">    future3 = pool.submit(func, **params_map) </span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 3. 调用result()获取返回值</span></span><br><span class="line">    <span class="built_in">print</span>(future1.result())</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(future2.result())</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">print</span>(future3.result())</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    thread_idx = 1</span></span><br><span class="line"><span class="string">    thread_idx = 2</span></span><br><span class="line"><span class="string">    thread_idx = 3</span></span><br><span class="line"><span class="string">    thread_1 sleep_secs:4 return!</span></span><br><span class="line"><span class="string">    thread_2 sleep_secs:3 return!</span></span><br><span class="line"><span class="string">    thread_3 sleep_secs:2 return!</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="5-无阻塞获得返回值"><a href="#5-无阻塞获得返回值" class="headerlink" title="5. 无阻塞获得返回值"></a>5. 无阻塞获得返回值</h2><p>在第4节中会发现 ，当调用<code>future1.result()</code>时，如果future1对应的线程还没有结束，那么就会阻塞在这里等待future1结束，那么即使future2先结束了，也不能提前得到主线程的处理。</p>
+<p>接下来介绍「只要有线程执行完毕就立即获得响应」的方式。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> concurrent.futures</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span>(<span class="params">thread_idx, sleep_secs</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;thread_idx = %d&quot;</span> % thread_idx)</span><br><span class="line">    time.sleep(sleep_secs)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;func return sleep_secs = %d&quot;</span> % sleep_secs</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="comment"># 1. 导入设定线程池大小</span></span><br><span class="line">thread_num = <span class="number">3</span></span><br><span class="line">future_list = []</span><br><span class="line"><span class="keyword">with</span> concurrent.futures.ThreadPoolExecutor(max_workers=thread_num) <span class="keyword">as</span> pool:</span><br><span class="line">    <span class="comment"># 用with控制，可以不用显示调用pool.shutdown(wait=True)函数</span></span><br><span class="line">    <span class="comment"># 2. 调用submit函数向线程池提交任务，当线程池有空余时，线程池会自动启动线程，这个过程不需要人工控制</span></span><br><span class="line">    <span class="comment"># 2.1. 同时用一个变量接收返回值</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span>	sleep_sec <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>):</span><br><span class="line">        <span class="comment"># 不同的线程给到不同的睡眠时间</span></span><br><span class="line">        <span class="comment"># 2.2. 传入参数</span></span><br><span class="line">        params_map = &#123;</span><br><span class="line">            <span class="string">&quot;sleep_secs&quot;</span> : <span class="number">5</span> - sleep_sec,</span><br><span class="line">        	<span class="string">&quot;thread_idx&quot;</span> : sleep_sec</span><br><span class="line">        &#125;</span><br><span class="line">        future_list.append(pool.submit(func, **params_map))</span><br><span class="line">    <span class="comment"># 3. 使用concurrent.futures.as_completed()生成器</span></span><br><span class="line">    <span class="keyword">for</span> future <span class="keyword">in</span> concurrent.futures.as_completed(future_list):</span><br><span class="line">        <span class="comment"># as_completed()返回一个generator，当给它的future list中有线程完成时会向其中添加一项，这样不会阻塞，哪个线程先完成就会先被调用，没有特定顺序</span></span><br><span class="line">        <span class="built_in">print</span>(future.result())</span><br><span class="line">    <span class="comment"># * 打印结果不一定与下面的一致 *</span></span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    thread_idx = 0</span></span><br><span class="line"><span class="string">    thread_idx = 1</span></span><br><span class="line"><span class="string">    thread_idx = 2</span></span><br><span class="line"><span class="string">    thread_idx = 3</span></span><br><span class="line"><span class="string">    func return sleep_secs = 3</span></span><br><span class="line"><span class="string">    thread_idx = 4</span></span><br><span class="line"><span class="string">    func return sleep_secs = 4</span></span><br><span class="line"><span class="string">    func return sleep_secs = 5</span></span><br><span class="line"><span class="string">    func return sleep_secs = 1</span></span><br><span class="line"><span class="string">    func return sleep_secs = 2</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<h2 id="7-异常处理"><a href="#7-异常处理" class="headerlink" title="7. 异常处理"></a>7. 异常处理</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> concurrent.futures</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span>():</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;thread start!&quot;</span>)</span><br><span class="line">    time.sleep(<span class="number">3</span>)</span><br><span class="line">    <span class="keyword">raise</span>(Exception(<span class="string">&quot;manual error&quot;</span>)) <span class="comment"># 手动抛出异常</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;func return!&quot;</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="comment"># 1. 导入设定线程池大小</span></span><br><span class="line">thread_num = <span class="number">3</span></span><br><span class="line"><span class="keyword">with</span> concurrent.futures.ThreadPoolExecutor(max_workers=thread_num) <span class="keyword">as</span> pool:</span><br><span class="line">    <span class="comment"># 用with控制，可以不用显示调用pool.shutdown(wait=True)函数</span></span><br><span class="line">    <span class="comment"># 2. 调用submit函数向线程池提交任务，当线程池有空余时，线程池会自动启动线程，这个过程不需要人工控制</span></span><br><span class="line">    <span class="comment"># 2.1. 同时用一个变量接收返回值</span></span><br><span class="line">    future = pool.submit(func)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 3. 调用exception()获取异常, 注意exception()和result()一样，都会阻塞主线程</span></span><br><span class="line">    <span class="built_in">print</span>(future.exception())</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    thread start!</span></span><br><span class="line"><span class="string">    manual error</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 4. 如果调用result()则会直接抛出异常</span></span><br><span class="line">    <span class="built_in">print</span>(future.result())</span><br></pre></td></tr></table></figure>
+
+<h1 id="多线程-生成器获取返回值"><a href="#多线程-生成器获取返回值" class="headerlink" title="多线程 + 生成器获取返回值"></a>多线程 + 生成器获取返回值</h1><h2 id="1-生成器Generator"><a href="#1-生成器Generator" class="headerlink" title="1. 生成器Generator"></a>1. 生成器Generator</h2><p>当一个函数中出现<code>yield</code>时，它就会变成一个<code>Generator</code>，一般用for循环遍历，也可以手动调用它的<code>.next()</code>函数。</p>
+<p><code>Generator</code>的特性是：遇到yield，则返回yield表达式中的内容，同时暂停运行，直到下一次调用<code>.next()</code>时再从yield的下一条语句继续执行。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">counter</span>(<span class="params">target</span>):</span></span><br><span class="line">    <span class="keyword">for</span>	i <span class="keyword">in</span> <span class="built_in">range</span>(target):</span><br><span class="line">        <span class="keyword">yield</span> i</span><br><span class="line">        </span><br><span class="line">counter_generator = counter(<span class="number">10</span>)</span><br><span class="line"><span class="keyword">for</span>	item <span class="keyword">in</span> counter_generator:</span><br><span class="line">    <span class="built_in">print</span>(item)</span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">0</span></span><br><span class="line"><span class="string">1</span></span><br><span class="line"><span class="string">2</span></span><br><span class="line"><span class="string">3</span></span><br><span class="line"><span class="string">4</span></span><br><span class="line"><span class="string">5</span></span><br><span class="line"><span class="string">6</span></span><br><span class="line"><span class="string">7</span></span><br><span class="line"><span class="string">8</span></span><br><span class="line"><span class="string">9</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-使用Generator获取线程返回值"><a href="#2-使用Generator获取线程返回值" class="headerlink" title="2. 使用Generator获取线程返回值"></a>2. 使用Generator获取线程返回值</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> concurrent.futures</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">func</span>(<span class="params">num, sleep_secs</span>):</span></span><br><span class="line">    <span class="comment"># 输入num, 返回num * 2</span></span><br><span class="line">    time.sleep(sleep_secs)</span><br><span class="line">    <span class="keyword">return</span> num * <span class="number">2</span></span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_async</span>():</span>    </span><br><span class="line">    thread_num = <span class="number">3</span></span><br><span class="line">    <span class="keyword">with</span> concurrent.futures.ThreadPoolExecutor(max_workers=thread_num) <span class="keyword">as</span> pool:</span><br><span class="line">        future_list = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">            <span class="comment"># 总共10个线程</span></span><br><span class="line">            params_map = &#123;</span><br><span class="line">                <span class="string">&quot;sleep_secs&quot;</span> : <span class="number">1</span>,</span><br><span class="line">                <span class="string">&quot;num&quot;</span> : i</span><br><span class="line">            &#125;</span><br><span class="line">            future_list.append(pool.submit(func, **params_map))</span><br><span class="line">        <span class="keyword">for</span> future <span class="keyword">in</span> concurrent.futures.as_completed(future_list):</span><br><span class="line">            <span class="comment"># as_completed()返回一个generator，当给它的future list中有线程完成时会向其中添加一项，这样不会阻塞，哪个线程先完成就会先被调用，没有特定顺序</span></span><br><span class="line">            <span class="keyword">yield</span> future.result()</span><br><span class="line">            </span><br><span class="line">results = run_async()</span><br><span class="line"><span class="keyword">for</span>	r <span class="keyword">in</span> results:</span><br><span class="line">    <span class="built_in">print</span>(r)</span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">2</span></span><br><span class="line"><span class="string">4</span></span><br><span class="line"><span class="string">0</span></span><br><span class="line"><span class="string">10</span></span><br><span class="line"><span class="string">8</span></span><br><span class="line"><span class="string">6</span></span><br><span class="line"><span class="string">12</span></span><br><span class="line"><span class="string">14</span></span><br><span class="line"><span class="string">16</span></span><br><span class="line"><span class="string">18</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag"># 编程</a>
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/YOLOv5%E7%9B%AE%E6%A0%87%E8%AF%86%E5%88%AB%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" rel="prev" title="YOLOv5目标识别使用方法">
+      <i class="fa fa-chevron-left"></i> YOLOv5目标识别使用方法
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%BD%BF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">线程池使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">1. 基本用法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%8E%B7%E5%8F%96%E7%BA%BF%E7%A8%8B%E5%B7%A5%E4%BD%9C%E7%8A%B6%E6%80%81"><span class="nav-number">1.2.</span> <span class="nav-text">2. 获取线程工作状态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E8%8E%B7%E5%8F%96%E7%BA%BF%E7%A8%8B%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="nav-number">1.3.</span> <span class="nav-text">3. 获取线程返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%90%91%E7%BA%BF%E7%A8%8B%E4%BC%A0%E9%80%92%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.</span> <span class="nav-text">4. 向线程传递参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%97%A0%E9%98%BB%E5%A1%9E%E8%8E%B7%E5%BE%97%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="nav-number">1.5.</span> <span class="nav-text">5. 无阻塞获得返回值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="nav-number">1.6.</span> <span class="nav-text">7. 异常处理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B-%E7%94%9F%E6%88%90%E5%99%A8%E8%8E%B7%E5%8F%96%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="nav-number">2.</span> <span class="nav-text">多线程 + 生成器获取返回值</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%94%9F%E6%88%90%E5%99%A8Generator"><span class="nav-number">2.1.</span> <span class="nav-text">1. 生成器Generator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8Generator%E8%8E%B7%E5%8F%96%E7%BA%BF%E7%A8%8B%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="nav-number">2.2.</span> <span class="nav-text">2. 使用Generator获取线程返回值</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="德依安"
+      src="/images/dd_avatar_chun.jpg">
+  <p class="site-author-name" itemprop="name">德依安</p>
+  <div class="site-description" itemprop="description">记录一些关于学习、生活、爱好的个人网站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:768003641@qq.com" title="E-Mail → mailto:768003641@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+    </div>
+  </aside>
+
+  <div id="sidebar-dimmer"></div>
+
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-coffee"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">德依安</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">62k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:05</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.8s',
+  mixColor: 'rgba(100,100,100,0.7)',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'Q1of9PPrAVcg9QlttMSouUyg-MdYXbMMI',
+      appKey     : 'aciBvoJbivUq2Wc1AMzKPUsI',
+      placeholder: "都看完了，不来说两句吗OvO",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://q1of9ppr.api.lncldglobal.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
