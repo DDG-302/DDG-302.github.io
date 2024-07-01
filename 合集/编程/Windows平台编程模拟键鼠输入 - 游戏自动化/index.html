@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ddg-302.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="使用Python库快速实现键鼠输入监听和键鼠输入模拟，能够满足大部分使用场景。使用C#基于windows api的低级监听事件，实现程序失去焦点时的键鼠输入监听。使用windows api的PostMessageW函数实现向后台程序发送消息。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows平台模拟键鼠输入">
+<meta property="og:url" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E5%B9%B3%E5%8F%B0%E7%BC%96%E7%A8%8B%E6%A8%A1%E6%8B%9F%E9%94%AE%E9%BC%A0%E8%BE%93%E5%85%A5%20-%20%E6%B8%B8%E6%88%8F%E8%87%AA%E5%8A%A8%E5%8C%96/index.html">
+<meta property="og:site_name" content="德依安-BLOG">
+<meta property="og:description" content="使用Python库快速实现键鼠输入监听和键鼠输入模拟，能够满足大部分使用场景。使用C#基于windows api的低级监听事件，实现程序失去焦点时的键鼠输入监听。使用windows api的PostMessageW函数实现向后台程序发送消息。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-05T10:53:03.000Z">
+<meta property="article:modified_time" content="2024-07-01T10:15:27.848Z">
+<meta property="article:author" content="德依安">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="技术">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E5%B9%B3%E5%8F%B0%E7%BC%96%E7%A8%8B%E6%A8%A1%E6%8B%9F%E9%94%AE%E9%BC%A0%E8%BE%93%E5%85%A5%20-%20%E6%B8%B8%E6%88%8F%E8%87%AA%E5%8A%A8%E5%8C%96/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Windows平台模拟键鼠输入 | 德依安-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">德依安-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">奇迹与魔法都是存在的</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">20</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">8</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">15</span></a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-website-404">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>本站404</a>
+
+  </li>
+        <li class="menu-item menu-item-bangumi">
+
+    <a href="/bangumis/" rel="section"><i class="fa fa-tv fa-fw"></i>动画</a>
+
+  </li>
+        <li class="menu-item menu-item-cinema">
+
+    <a href="/cinemas/" rel="section"><i class="fa fa-film fa-fw"></i>电影</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    <!-- https://cdn.jsdelivr.net/npm/sakana-widget@2.2.2/lib/sakana.min.js -->
+<!-- https://cdnjs.cloudflare.com/ajax/libs/sakana-widget/2.2.2/sakana.min.js -->
+<!-- https://github.com/dsrkafuu/sakana-widget -->
+<div id="sakana-widget" style="position:fixed; bottom:10px; right:10px; z-index:1;" ></div>
+<script>
+  function initSakanaWidget() {
+    const takina_slow = SakanaWidget.getCharacter('takina');
+    takina_slow.initialState = {
+      ...takina_slow.initialState,
+      i: 0.01,
+      d: 0.997,
+    };
+    SakanaWidget.registerCharacter('takina', takina_slow);
+
+    const chisato_slow = SakanaWidget.getCharacter('chisato');
+    chisato_slow.initialState = {
+      ...chisato_slow.initialState,
+      i: 0.01,
+      d: 0.996,
+    };
+    SakanaWidget.registerCharacter('chisato', chisato_slow);
+
+    new SakanaWidget({character:"takina"}).mount('#sakana-widget');
+  }
+  
+</script>
+
+<script
+  async
+  onload="initSakanaWidget()"
+  src="/js/sakana.min.js"
+></script>
+
+<!-- 以上是sakana插件 -->
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E5%B9%B3%E5%8F%B0%E7%BC%96%E7%A8%8B%E6%A8%A1%E6%8B%9F%E9%94%AE%E9%BC%A0%E8%BE%93%E5%85%A5%20-%20%E6%B8%B8%E6%88%8F%E8%87%AA%E5%8A%A8%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dd_avatar_chun.jpg">
+      <meta itemprop="name" content="德依安">
+      <meta itemprop="description" content="记录一些关于学习、生活、爱好的个人网站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="德依安-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Windows平台模拟键鼠输入
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-06-05 18:53:03" itemprop="dateCreated datePublished" datetime="2024-06-05T18:53:03+08:00">2024-06-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-07-01 18:15:27" itemprop="dateModified" datetime="2024-07-01T18:15:27+08:00">2024-07-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">编程</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E5%B9%B3%E5%8F%B0%E7%BC%96%E7%A8%8B%E6%A8%A1%E6%8B%9F%E9%94%AE%E9%BC%A0%E8%BE%93%E5%85%A5%20-%20%E6%B8%B8%E6%88%8F%E8%87%AA%E5%8A%A8%E5%8C%96/" class="post-meta-item leancloud_visitors" data-flag-title="Windows平台模拟键鼠输入" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E5%B9%B3%E5%8F%B0%E7%BC%96%E7%A8%8B%E6%A8%A1%E6%8B%9F%E9%94%AE%E9%BC%A0%E8%BE%93%E5%85%A5%20-%20%E6%B8%B8%E6%88%8F%E8%87%AA%E5%8A%A8%E5%8C%96/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E5%B9%B3%E5%8F%B0%E7%BC%96%E7%A8%8B%E6%A8%A1%E6%8B%9F%E9%94%AE%E9%BC%A0%E8%BE%93%E5%85%A5%20-%20%E6%B8%B8%E6%88%8F%E8%87%AA%E5%8A%A8%E5%8C%96/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>12k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>23 分钟</span>
+            </span>
+            <div class="post-description">使用Python库快速实现键鼠输入监听和键鼠输入模拟，能够满足大部分使用场景。使用C#基于windows api的低级监听事件，实现程序失去焦点时的键鼠输入监听。使用windows api的PostMessageW函数实现向后台程序发送消息。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="模拟键鼠输入-Python"><a href="#模拟键鼠输入-Python" class="headerlink" title="模拟键鼠输入 - Python"></a>模拟键鼠输入 - Python</h1><p>模拟键鼠输入在Python中多种不同的库，这里就用<code>pynput</code>库。</p>
+<p>安装（<a target="_blank" rel="noopener" href="https://pypi.org/project/pynput/">pynput · PyPI</a>）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install pynput</span><br></pre></td></tr></table></figure>
+
+<p>模拟键盘输入：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pynput.keyboard <span class="keyword">import</span> Controller</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">controller = Controller()</span><br><span class="line">controller.press(<span class="string">&quot;f&quot;</span>)</span><br><span class="line">controller.release(<span class="string">&quot;f&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>模拟鼠标输入：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pynput <span class="keyword">import</span> mouse</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mouse_controller = mouse.Controller()</span><br><span class="line">mouse_controller.position = position <span class="comment"># 可以设定按压的位置，即把鼠标移动到position位置</span></span><br><span class="line">mouse_controller.press(mouse.Button.left)</span><br><span class="line">mouse_controller.release(mouse.Button.left)</span><br></pre></td></tr></table></figure>
+
+<p>监听键盘输入：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pynput.keyboard <span class="keyword">import</span> Key, Listener, Controller</span><br><span class="line"><span class="keyword">from</span> pynput.keyboard._win32 <span class="keyword">import</span> KeyCode</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">on_release</span>(<span class="params">key</span>):</span></span><br><span class="line">    <span class="keyword">if</span> key == Key.pause:</span><br><span class="line">        running = <span class="literal">False</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;pause&quot;</span>)</span><br><span class="line">    <span class="keyword">elif</span> key == KeyCode.from_char(<span class="string">&quot;A&quot;</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;A&quot;</span>)</span><br><span class="line"></span><br><span class="line">listener = Listener(on_release=on_release)</span><br><span class="line">listener.start()</span><br></pre></td></tr></table></figure>
+
+<p>如果是ascii字符，则会直接输出一个字符；如果是shift、ctrl、pause这种特殊按键，则会输出一个<code>Key.xxx</code></p>
+<p>有了这些之后就可以结合手动信号量来写一个自动按键脚本了，比如下面的就是一个在原神中自动按f并且鼠标自动点对话按钮的脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">from</span> pynput.keyboard <span class="keyword">import</span> Key, Listener, Controller</span><br><span class="line"><span class="keyword">from</span> pynput.keyboard._win32 <span class="keyword">import</span> KeyCode</span><br><span class="line"><span class="keyword">from</span> pynput <span class="keyword">import</span> mouse</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line">controller = Controller()</span><br><span class="line">mouse_controller = mouse.Controller()</span><br><span class="line"></span><br><span class="line">flag = <span class="literal">False</span></span><br><span class="line">running = <span class="literal">True</span></span><br><span class="line">position = (<span class="number">1219</span>, <span class="number">720</span>) <span class="comment"># (1382, 807)</span></span><br><span class="line">go_mouse_press = <span class="literal">False</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">~: 开启自动按键 + 自动单击</span></span><br><span class="line"><span class="string">=: 把当前位置设置为鼠标自动单击的位置</span></span><br><span class="line"><span class="string">HOME: 按下~后会开启自动单击</span></span><br><span class="line"><span class="string">PAUSE: 关闭程序</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;start! flag=&quot;</span>, flag, <span class="string">&quot;mouse:&quot;</span>, go_mouse_press, <span class="string">&quot;position:&quot;</span>, position)</span><br><span class="line"><span class="comment"># ~: 开启自动按键 + 自动单击</span></span><br><span class="line"><span class="comment"># =: 把当前位置设置为鼠标自动单击的位置</span></span><br><span class="line"><span class="comment"># HOME: 按下~后会开启自动单击</span></span><br><span class="line"><span class="comment"># PAUSE: 关闭程序</span></span><br><span class="line">event = threading.Event()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">on_release</span>(<span class="params">key</span>):</span></span><br><span class="line">    <span class="keyword">global</span> event</span><br><span class="line">    <span class="keyword">global</span> flag</span><br><span class="line">    <span class="keyword">global</span> position</span><br><span class="line">    <span class="keyword">global</span> running</span><br><span class="line">    <span class="keyword">global</span> go_mouse_press</span><br><span class="line">    <span class="keyword">if</span> key == Key.pause:</span><br><span class="line">        running = <span class="literal">False</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;stop!&quot;</span>)</span><br><span class="line">    <span class="keyword">elif</span> key == KeyCode.from_char(<span class="string">&quot;`&quot;</span>):</span><br><span class="line">        flag = <span class="keyword">not</span> flag</span><br><span class="line">        <span class="keyword">if</span> flag:</span><br><span class="line">            event.<span class="built_in">set</span>()</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            event.clear()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;flag: &quot;</span>, flag)</span><br><span class="line">    <span class="keyword">elif</span> key == Key.home:</span><br><span class="line">        go_mouse_press = <span class="keyword">not</span> go_mouse_press</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;mouse: &quot;</span>, go_mouse_press)</span><br><span class="line">    <span class="keyword">elif</span> key == KeyCode.from_char(<span class="string">&quot;=&quot;</span>):</span><br><span class="line">        position = mouse_controller.position</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;new position: &quot;</span>, position)</span><br><span class="line">        </span><br><span class="line">listener = Listener(on_release=on_release)</span><br><span class="line">listener.start()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> running:</span><br><span class="line">    <span class="keyword">while</span> event.wait():</span><br><span class="line">        time.sleep(<span class="number">0.1</span>)</span><br><span class="line">        controller.press(<span class="string">&quot;f&quot;</span>)</span><br><span class="line">        controller.release(<span class="string">&quot;f&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> go_mouse_press:</span><br><span class="line">            mouse_controller.position = position</span><br><span class="line">            mouse_controller.press(mouse.Button.left)</span><br><span class="line">            mouse_controller.release(mouse.Button.left)</span><br></pre></td></tr></table></figure>
+
+<h1 id="关于pynput"><a href="#关于pynput" class="headerlink" title="关于pynput"></a>关于pynput</h1><p>如果你试过用C#或者js的事件监听，你会发现如果当前页面失去焦点，那么键鼠的事件监听将会失效。但是python的pynput库则可以在python脚本程序最小化时也能成功监听，这是因为它在windows下是直接调用了win32 api的钩子函数监听了低级的键盘事件（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowshookexa">SetWindowsHookExA function (winuser.h) - Win32 apps | Microsoft Learn</a>）。</p>
+<p>同理，它的模拟输入也是调用了<code>SendInput</code>（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput">SendInput function (winuser.h) - Win32 apps | Microsoft Learn</a>）。</p>
+<p>另外，pynput<strong>实现了多个操作系统的键鼠监听与模拟输入</strong>，因此并不仅局限于windows平台。（其他主流的python键鼠库也基本是这样的）</p>
+<h1 id="键鼠监听和模拟键鼠输入-C-user32-dll"><a href="#键鼠监听和模拟键鼠输入-C-user32-dll" class="headerlink" title="键鼠监听和模拟键鼠输入 - C#(user32.dll)"></a>键鼠监听和模拟键鼠输入 - C#(user32.dll)</h1><p>知道以上信息后，可以用C#调用user32.dll来做到键鼠输入的监听和模拟输出。</p>
+<p>注意，<code>SetWindowsHookEx</code>监听只能在C#窗体应用中才能用，控制台应用不可使用。</p>
+<p>监听步骤：</p>
+<ol>
+<li><p>声明钩子函数<code>SetWindowsHookEx</code>和其需要的回调函数（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowshookexa">SetWindowsHookExA function (winuser.h) - Win32 apps | Microsoft Learn</a>）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 定义名为LowLevelKeyboardProc的委托用于回调处理</span><br><span class="line">private delegate IntPtr LowLevelKeyboardProc</span><br><span class="line">LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);</span><br><span class="line"></span><br><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc callback, IntPtr hInstance, uint threadId);</span><br></pre></td></tr></table></figure>
+
+<p>在该函数中有4个参数：</p>
+<ul>
+<li><code>idHook</code>：决定要监听的事件类型，这里<strong>以键盘输入事件为例</strong>，也就是<code>WH_KEYBOARD_LL</code>，值为13。更多事件在上面的链接中可以看到。</li>
+<li><code>callback</code>：回调函数，当对应的事件触发时，系统会调用执行这个callback。这个callback请参考：<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-hookproc">HOOKPROC (winuser.h) - Win32 apps | Microsoft Learn</a>。根据这个链接里的内容可以发现，它的入参的值与钩子函数监听的事件类型有关。这里我们监听的是键盘输入事件，那么它的回调参数含义可以参考：<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/winmsg/lowlevelkeyboardproc">LowLevelKeyboardProc callback function - Win32 apps | Microsoft Learn</a>。如果你想处理其他类型的事件，那么就参考idHook表格中的Proc说明链接。在键盘事件回调函数中的3个入参为：<ul>
+<li><code>nCode</code>：用来告知钩子函数该如何处理信息，在这里不需要管它。</li>
+<li><code>wParam</code>：事件类型，这里以<code>WM_KEYUP</code>为例。（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-keyup">WM_KEYUP message (Winuser.h) - Win32 apps | Microsoft Learn</a>）</li>
+<li><code>lParam</code>：是一个<code>KBDLLHOOKSTRUCT</code>类型的结构体，可以根据文档（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-kbdllhookstruct">KBDLLHOOKSTRUCT (winuser.h) - Win32 apps | Microsoft Learn</a>）按需取自己需要的信息。</li>
+</ul>
+</li>
+<li><code>hInstance</code>：当前实例句柄</li>
+<li><code>threadId</code>：与钩子相关的线程<br>关于<code>hInstance</code>和<code>threadId</code>我也不太能理解（<a target="_blank" rel="noopener" href="https://blog.csdn.net/rankun1/article/details/50973190">SetWindowsHookEx钩子详解_setwindowshook 可以不指定线程吗-CSDN博客</a>），对于键盘事件这种全局事件来说，这两个都是可以设为0的。但是看其他的实例中，还是会把当前实例句柄传入<code>hInstance</code>，因此本文也会这样做。</li>
+</ul>
+</li>
+<li><p>用系统api <code>GetModuleHandle</code>获取当前进程实例句柄</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[DllImport(&quot;kernel32.dll&quot;)]</span><br><span class="line">private static extern IntPtr GetModuleHandle(string lpModuleName);</span><br><span class="line">// 使用方法</span><br><span class="line">// using System.Diagnostics;</span><br><span class="line">// GetModuleHandle(Process.GetCurrentProcess().MainModule.ModuleName)</span><br></pre></td></tr></table></figure></li>
+<li><p>声明<code>CallNextHookEx</code>函数<br>这个函数需要在回调函数中调用以将键盘事件传递下去。（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-callnexthookex">CallNextHookEx function (winuser.h) - Win32 apps | Microsoft Learn</a>）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);</span><br></pre></td></tr></table></figure>
+
+<p>其中：<code>hhk</code>可以忽略，这里的<code>hhk</code>原本指的是钩子的句柄，也就是<code>SetWindowsHookEx</code>的返回值。你可以直接传入一个空指针，也可以就按原意传入hook句柄。其他的参数只要把hook回到函数中的入参原原本本传进去即可。</p>
+</li>
+<li><p>使用<code>MapVirtualKeyA</code>把<code>VkCode</code>转为char。（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-mapvirtualkeya">MapVirtualKeyA function (winuser.h) - Win32 apps | Microsoft Learn</a>）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">public static extern IntPtr MapVirtualKeyA(IntPtr uCode, uint uMapType);</span><br></pre></td></tr></table></figure>
+
+<p>这里的<code>uMapType</code>取2就是<code>MAPVK_VK_TO_CHAR</code>了。</p>
+</li>
+<li><p>编写回调函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)</span><br><span class="line">&#123;</span><br><span class="line">    if (nCode &gt;= 0 &amp;&amp; wParam == (IntPtr)WM_KEYUP)</span><br><span class="line">    &#123;</span><br><span class="line">        // 只响应监控WM_KEYUP事件</span><br><span class="line">        int vkCode = Marshal.ReadInt32(lParam);</span><br><span class="line">        // 根据文档可以知道，这个结构体第一个32位即虚拟码vkCode</span><br><span class="line">        // 第二个32位即扫描码scanCode</span><br><span class="line">        //int scanCode = Marshal.ReadInt32(lParam, 4); // 4表示偏移4个字节</span><br><span class="line">        // 如果你想用扫描码，可以参考：https://learn.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-6.0/aa299374(v=vs.60)?redirectedfrom=MSDN</span><br><span class="line">        Trace.WriteLine(vkCode);</span><br><span class="line">        </span><br><span class="line">        // vkCode转char</span><br><span class="line">        char c = (char)MapVirtualKeyA(vkCode, 2);</span><br><span class="line">        Trace.WriteLine(c);</span><br><span class="line">        // 如果不是字符，那么MapVirtualKeyA会返回0</span><br><span class="line">    &#125;</span><br><span class="line">    // 这里的_hookID: IntPtr _hookID = SetWindowsHookEx(...)</span><br><span class="line">    return CallNextHookEx(_hookID, nCode, wParam, lParam);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>取消钩子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">[return: MarshalAs(UnmanagedType.Bool)]</span><br><span class="line">private static extern bool UnhookWindowsHookEx(IntPtr hhk);</span><br></pre></td></tr></table></figure>
+
+<p><code>hhk</code>即上文提到的钩子句柄。</p>
+</li>
+<li><p>完整代码（忽略类）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">using System;</span><br><span class="line">using System.Collections.Generic;</span><br><span class="line">using System.Diagnostics;</span><br><span class="line">using System.Runtime.InteropServices;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);</span><br><span class="line">private static LowLevelKeyboardProc lowLevelKeyboardProc = mycallback; // 回调</span><br><span class="line">private const int WH_KEYBOARD_LL = 13;</span><br><span class="line">private const int WM_KEYUP = 0x0101;</span><br><span class="line">private static IntPtr _hookID = SetHook(mycallback); // 钩子句柄, SetHook定义在下面</span><br><span class="line"></span><br><span class="line">// 声明dll函数</span><br><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc callback, IntPtr hInstance, uint threadId);</span><br><span class="line"></span><br><span class="line">[DllImport(&quot;kernel32.dll&quot;)]</span><br><span class="line">private static extern IntPtr GetModuleHandle(string lpModuleName);</span><br><span class="line"></span><br><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode,</span><br><span class="line">IntPtr wParam, IntPtr lParam);</span><br><span class="line"></span><br><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">[return: MarshalAs(UnmanagedType.Bool)]</span><br><span class="line">private static extern bool UnhookWindowsHookEx(IntPtr hhk);</span><br><span class="line"></span><br><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">public static extern IntPtr PostMessageW(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);</span><br><span class="line"></span><br><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">public static extern IntPtr MapVirtualKeyA(IntPtr uCode, uint uMapType);</span><br><span class="line"></span><br><span class="line">// 定义回调</span><br><span class="line">private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)</span><br><span class="line">&#123;</span><br><span class="line">    if (nCode &gt;= 0 &amp;&amp; wParam == (IntPtr)WM_KEYUP)</span><br><span class="line">    &#123;</span><br><span class="line">        // 只响应监控WM_KEYUP事件</span><br><span class="line">        int vkCode = Marshal.ReadInt32(lParam);</span><br><span class="line">        Trace.WriteLine(vkCode);</span><br><span class="line">        </span><br><span class="line">        // vkCode转char</span><br><span class="line">        char c = (char)MapVirtualKeyA(vkCode, 2);</span><br><span class="line">        Trace.WriteLine(c);</span><br><span class="line">        // 如果不是字符，那么MapVirtualKeyA会返回0</span><br><span class="line">    &#125;</span><br><span class="line">    return CallNextHookEx(_hookID, nCode, wParam, lParam);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 注册钩子</span><br><span class="line">private static IntPtr SetHook(LowLevelKeyboardProc proc)</span><br><span class="line">&#123;</span><br><span class="line">    return SetWindowsHookEx(WH_KEYBOARD_LL, </span><br><span class="line">                            proc, </span><br><span class="line">                            GetModuleHandle(Process.GetCurrentProcess().MainModule.ModuleName), </span><br><span class="line">                            0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>模拟输出步骤：</p>
+<ol>
+<li>定义<code>SendInput</code>函数</li>
+<li>将待模拟的输入转换为VkKey<br>转VkKey有两种方式，一种是直接查表（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes">Virtual-Key Codes (Winuser.h) - Win32 apps | Microsoft Learn</a>），另一种是调用<code>VkKeyScanA</code>（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-vkkeyscana">VkKeyScanA function (winuser.h) - Win32 apps | Microsoft Learn</a>）</li>
+</ol>
+<p>代码参考（<a target="_blank" rel="noopener" href="https://qiita.com/kob58im/items/ca3b61e72111dfbab8a8">C# - SendInput(Windows API)によるキー入力のサンプル(32/64bit対応) #Win32API - Qiita</a>）</p>
+<p>主要注意input结构体的构造。</p>
+<h1 id="使用PostMessageW模拟输入"><a href="#使用PostMessageW模拟输入" class="headerlink" title="使用PostMessageW模拟输入"></a>使用PostMessageW模拟输入</h1><p><code>PostMessage</code>函数可以通过句柄直接把消息发到对应的窗口中，这样的好处是当你切屏时键盘输入不会乱按，而且对于有些程序来说，它在后台时也会处理<code>PostMessage</code>发送的消息，<strong>这样你就不需要一直让目标程序处于前台了</strong>。</p>
+<p>但是对于有些游戏来说，即使你用了<code>PostMessage</code>，它在后台时也不会处理输入的信息，<strong>甚至对于某些游戏即使它获得焦点的情况下仍然不会处理<code>PostMessage</code>发送的信息</strong>（比如星穹铁道）。</p>
+<p>使用<code>PostMessage</code>会比<code>SendInput</code>更复杂一些。<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postmessagew">PostMessageW function (winuser.h) - Win32 apps | Microsoft Learn</a></p>
+<ol>
+<li><p>定义<code>PostMessageW</code>函数</p>
+</li>
+<li><p>找到目标窗口的句柄（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-enumwindows">EnumWindows function (winuser.h) - Win32 apps | Microsoft Learn</a>）<br>这里我的实现比较繁琐一些。在这里定义了一个Params结构体，它会被传入EnumWindows的迭代器中，我用Params来保存handler和title的array。其中的array_length存储两个array的长度，用Append函数添加句柄和标题。只有数组能传到dll中，所以这里没用List，而是手动扩容和维护数组有效长度。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line">delegate bool EnumWindowsHandler(IntPtr HWND,ref  Params Lparam);</span><br><span class="line">static EnumWindowsHandler lpEnumFunc = EnumWindowsProc;</span><br><span class="line"></span><br><span class="line">private struct Params</span><br><span class="line">&#123;</span><br><span class="line">    public string window_title;</span><br><span class="line">    public IntPtr[] target_handler_array = new IntPtr[2];</span><br><span class="line">    public String[] title_array = new String[2];</span><br><span class="line">    public int array_length = 0;</span><br><span class="line"></span><br><span class="line">    public void Append(IntPtr handler, string title)</span><br><span class="line">    &#123;</span><br><span class="line">        if (array_length &lt; target_handler_array.Length)</span><br><span class="line">        &#123;</span><br><span class="line">            target_handler_array[array_length] = handler;</span><br><span class="line">            title_array[array_length] = title;</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">            IntPtr[] new_handler_list = new IntPtr[target_handler_array.Length * 2];</span><br><span class="line">            target_handler_array.CopyTo(new_handler_list, 0);</span><br><span class="line">            target_handler_array = new_handler_list;</span><br><span class="line">            target_handler_array[array_length] = handler;</span><br><span class="line"></span><br><span class="line">            string[] new_title_array = new string[title_array.Length * 2];</span><br><span class="line">            title_array.CopyTo(new_title_array, 0);</span><br><span class="line">            title_array = new_title_array;</span><br><span class="line">            title_array[array_length] = title;</span><br><span class="line">        &#125;</span><br><span class="line">        array_length++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Params(string window_title)</span><br><span class="line">    &#123;</span><br><span class="line">        this.window_title = window_title;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[DllImport(&quot;user32.dll&quot;, CharSet = CharSet.Auto, SetLastError = true)]</span><br><span class="line">static extern bool EnumWindows(EnumWindowsHandler handler, ref Params lParam);</span><br><span class="line"></span><br><span class="line">[DllImport(&quot;user32.dll&quot;, CharSet = CharSet.Auto, SetLastError = true)]</span><br><span class="line">static extern int GetWindowTextW(IntPtr hWnd, StringBuilder lpString, int nMaxCount);</span><br><span class="line">private static bool EnumWindowsProc(IntPtr HWND, ref Params LPARAM)</span><br><span class="line">&#123;</span><br><span class="line">    // 每次迭代都会调用proc处理，当return false时停止迭代</span><br><span class="line">    StringBuilder window_name = new StringBuilder(100);</span><br><span class="line">    </span><br><span class="line">    // getwindowtextw会把HWND句柄的title名复制到window_name参数中</span><br><span class="line">    int flag = GetWindowTextW(HWND, window_name, 100);</span><br><span class="line"></span><br><span class="line">    if (LPARAM.window_title != &quot;&quot;)</span><br><span class="line">    &#123;</span><br><span class="line">        if (flag != 0 &amp;&amp; window_name.ToString() == LPARAM.window_title)</span><br><span class="line">        &#123;</span><br><span class="line">            LPARAM.Append(HWND, window_name.ToString());</span><br><span class="line">            // 找到第一个就退出</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">        // 如果window_title为&quot;&quot;，说明要遍历所有进程</span><br><span class="line">        if (flag != 0)</span><br><span class="line">        &#123;</span><br><span class="line">            LPARAM.Append(HWND, window_name.ToString());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 之后调用这个函数即可获取句柄+对应窗口名的数组</span><br><span class="line">static public void GetWindowsHandlerByTitle(string window_title, out IntPtr[] handler_array, out string[] title_array) &#123;</span><br><span class="line">    Params lParam = new Params(window_title);</span><br><span class="line">    EnumWindows(lpEnumFunc, ref lParam);</span><br><span class="line">    handler_array = lParam.target_handler_array.Take(lParam.array_length).ToArray();</span><br><span class="line">    title_array = lParam.title_array.Take(lParam.array_length).ToArray();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>决定输入事件（Msg）</p>
+</li>
+<li><p>将待模拟的输入转换为VkKey（wParam）</p>
+</li>
+<li><p>构造lparam（lParam)<br>lParam对于不同的事件来说是不一样的。在这里用的是<code>WM_KEYDOWN</code>（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-keydown">WM_KEYDOWN message (Winuser.h) - Win32 apps | Microsoft Learn</a>）和<code>WM_KEYUP</code>（<a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-keyup">WM_KEYUP message (Winuser.h) - Win32 apps | Microsoft Learn</a>）事件。</p>
+</li>
+</ol>
+<p>如果你想用Python实现<code>PostMessage</code>，请参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/363186784">Python开发游戏自动化脚本（四）后台键鼠操作 - 知乎 (zhihu.com)</a></p>
+<p>如果你想用C#实现，请参考以下步骤：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">public static extern IntPtr PostMessageW(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);</span><br><span class="line"></span><br><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">public static extern IntPtr VkKeyScanA(char ch); // 上文有文档</span><br><span class="line"></span><br><span class="line">[DllImport(&quot;user32.dll&quot;)]</span><br><span class="line">public static extern IntPtr MapVirtualKeyA(IntPtr uCode, uint uMapType); // 上文有文档</span><br><span class="line"></span><br><span class="line">public static void testClick()</span><br><span class="line">&#123;</span><br><span class="line">    IntPtr[] handlers;</span><br><span class="line">    string[] titles;</span><br><span class="line">    // 见上面的步骤2 (这里向原神窗口发送)</span><br><span class="line">    WindowsHandler.GetWindowsHandlerByTitle(&quot;原神&quot;, out handlers, out titles);</span><br><span class="line">	</span><br><span class="line">    // 直接取第1个搜索到的句柄</span><br><span class="line">    IntPtr handler = handlers[0];</span><br><span class="line">    // 输入字符f</span><br><span class="line">    IntPtr vk_code = VkKeyScanA(&#x27;f&#x27;);</span><br><span class="line">    // 获取扫描码</span><br><span class="line">    IntPtr scan_code = MapVirtualKeyA(vk_code, 0);</span><br><span class="line">    // 发送按键按下+抬起指令</span><br><span class="line">    </span><br><span class="line">    // 根据文档 16-23位是scan_code, 0-15位表示重复次数, 这里或1表示设为1, 只发送1个</span><br><span class="line">    PostMessageW(handler, WM_KEYDOWN, vk_code, (scan_code &lt;&lt; 16) | 1); </span><br><span class="line">    // 根据文档 16-23位是scan_code, 0-15位表示重复次数, 这里或1表示设为1, 只发送1个</span><br><span class="line">    // 第30和31位在WM_KEYUP中要求是1所以16进制设为C</span><br><span class="line">    PostMessageW(handler, WM_KEYUP, vk_code, (IntPtr)((scan_code &lt;&lt; 16) | 0XC0000001));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag"># 编程</a>
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/FastAPI%E4%BD%BF%E7%94%A8%E6%A8%A1%E5%9E%8B%E7%B1%BB%E6%8E%A5%E6%94%B6%E8%A1%A8%E5%8D%95%EF%BC%88Form%EF%BC%89%E6%95%B0%E6%8D%AE/" rel="prev" title="FastAPI使用模型类接收表单（Form）数据">
+      <i class="fa fa-chevron-left"></i> FastAPI使用模型类接收表单（Form）数据
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E6%8B%9F%E9%94%AE%E9%BC%A0%E8%BE%93%E5%85%A5-Python"><span class="nav-number">1.</span> <span class="nav-text">模拟键鼠输入 - Python</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E4%BA%8Epynput"><span class="nav-number">2.</span> <span class="nav-text">关于pynput</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%AE%E9%BC%A0%E7%9B%91%E5%90%AC%E5%92%8C%E6%A8%A1%E6%8B%9F%E9%94%AE%E9%BC%A0%E8%BE%93%E5%85%A5-C-user32-dll"><span class="nav-number">3.</span> <span class="nav-text">键鼠监听和模拟键鼠输入 - C#(user32.dll)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8PostMessageW%E6%A8%A1%E6%8B%9F%E8%BE%93%E5%85%A5"><span class="nav-number">4.</span> <span class="nav-text">使用PostMessageW模拟输入</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="德依安"
+      src="/images/dd_avatar_chun.jpg">
+  <p class="site-author-name" itemprop="name">德依安</p>
+  <div class="site-description" itemprop="description">记录一些关于学习、生活、爱好的个人网站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:DDG302@outlook.com" title="E-Mail → mailto:DDG302@outlook.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+    </div>
+  </aside>
+
+  <div id="sidebar-dimmer"></div>
+
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-coffee"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">德依安</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">83k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:45</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.8s',
+  mixColor: 'rgba(100,100,100,0.7)',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'Q1of9PPrAVcg9QlttMSouUyg-MdYXbMMI',
+      appKey     : 'aciBvoJbivUq2Wc1AMzKPUsI',
+      placeholder: "都看完了，不来说两句吗OvO",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://q1of9ppr.api.lncldglobal.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
