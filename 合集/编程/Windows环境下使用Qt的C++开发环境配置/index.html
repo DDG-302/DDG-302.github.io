@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ddg-302.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="windows下使用vscode开发qt程序时安装qt的环境配置。主要包括Qt下载、环境变量配置、编译器版本注意事项、CMake注意事项和Hello World小demo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows环境下使用Qt的C++开发环境配置">
+<meta property="og:url" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="德依安-BLOG">
+<meta property="og:description" content="windows下使用vscode开发qt程序时安装qt的环境配置。主要包括Qt下载、环境变量配置、编译器版本注意事项、CMake注意事项和Hello World小demo">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241026153522683.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241026153723753.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241026153946391.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241026154049090.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241124144421222.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241124145208676.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241124145422777.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241124150120223.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241124150235057.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241124150337661.png">
+<meta property="og:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241124150509630.png">
+<meta property="article:published_time" content="2024-10-26T07:30:05.000Z">
+<meta property="article:modified_time" content="2024-11-24T07:25:00.055Z">
+<meta property="article:author" content="德依安">
+<meta property="article:tag" content="编程">
+<meta property="article:tag" content="技术">
+<meta property="article:tag" content="windows">
+<meta property="article:tag" content="Qt">
+<meta property="article:tag" content="c++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/image-20241026153522683.png">
+
+<link rel="canonical" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Windows环境下使用Qt的C++开发环境配置 | 德依安-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>.darkmode--activated{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#282b2e;--highlight-foreground:#a9b7c6;--highlight-gutter-background:#34393d;--highlight-gutter-foreground:#9ca9b6}.darkmode--activated img{opacity:.75}.darkmode--activated img:hover{opacity:.9}.darkmode--activated code{color:#69dbdc;background:0 0}button.darkmode-toggle{z-index:9999}.darkmode-ignore,img{display:flex!important}.beian img{display:inline-block!important}</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">德依安-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">奇迹与魔法都是存在的</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">21</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">8</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">18</span></a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-website-404">
+
+    <a href="/404.html" rel="section"><i class="fa fa-heartbeat fa-fw"></i>本站404</a>
+
+  </li>
+        <li class="menu-item menu-item-bangumi">
+
+    <a href="/bangumis/" rel="section"><i class="fa fa-tv fa-fw"></i>动画</a>
+
+  </li>
+        <li class="menu-item menu-item-cinema">
+
+    <a href="/cinemas/" rel="section"><i class="fa fa-film fa-fw"></i>电影</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    <!-- https://cdn.jsdelivr.net/npm/sakana-widget@2.2.2/lib/sakana.min.js -->
+<!-- https://cdnjs.cloudflare.com/ajax/libs/sakana-widget/2.2.2/sakana.min.js -->
+<!-- https://github.com/dsrkafuu/sakana-widget -->
+<div id="sakana-widget" style="position:fixed; bottom:10px; right:10px; z-index:1;" ></div>
+<script>
+  function initSakanaWidget() {
+    const takina_slow = SakanaWidget.getCharacter('takina');
+    takina_slow.initialState = {
+      ...takina_slow.initialState,
+      i: 0.01,
+      d: 0.997,
+    };
+    SakanaWidget.registerCharacter('takina', takina_slow);
+
+    const chisato_slow = SakanaWidget.getCharacter('chisato');
+    chisato_slow.initialState = {
+      ...chisato_slow.initialState,
+      i: 0.01,
+      d: 0.996,
+    };
+    SakanaWidget.registerCharacter('chisato', chisato_slow);
+
+    new SakanaWidget({character:"takina"}).mount('#sakana-widget');
+  }
+  
+</script>
+
+<script
+  async
+  onload="initSakanaWidget()"
+  src="/js/sakana.min.js"
+></script>
+
+<!-- 以上是sakana插件 -->
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ddg-302.github.io/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dd_avatar_chun.jpg">
+      <meta itemprop="name" content="德依安">
+      <meta itemprop="description" content="记录一些关于学习、生活、爱好的个人网站">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="德依安-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Windows环境下使用Qt的C++开发环境配置
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-10-26 15:30:05" itemprop="dateCreated datePublished" datetime="2024-10-26T15:30:05+08:00">2024-10-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-11-24 15:25:00" itemprop="dateModified" datetime="2024-11-24T15:25:00+08:00">2024-11-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">编程</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="post-meta-item leancloud_visitors" data-flag-title="Windows环境下使用Qt的C++开发环境配置" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8Qt%E7%9A%84C++%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+            <div class="post-description">windows下使用vscode开发qt程序时安装qt的环境配置。主要包括Qt下载、环境变量配置、编译器版本注意事项、CMake注意事项和Hello World小demo</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h1 id="Qt"><a href="#Qt" class="headerlink" title="Qt"></a>Qt</h1><p>Qt是一个跨平台C++图形化应用程序开发工具，自带有Qt Creator可视化IDE编辑UI界面。当然Qt也可以用来开发非图形化界面，或者使用Qt里提供的如QString，QVector，QJsonDocument等方便的工具来开发你的其他C++应用。</p>
+<h1 id="Qt下载与安装"><a href="#Qt下载与安装" class="headerlink" title="Qt下载与安装"></a>Qt下载与安装</h1><h2 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h2><p>官网安装qt需要注册账号，可以从<a target="_blank" rel="noopener" href="https://download.qt.io/archive/qt/">Index of /archive/qt</a>下载到不需要登录的安装工具。</p>
+<p><img src="image-20241026153522683.png" alt="image-20241026153522683"></p>
+<p>可以选择一个你想装的版本。如果你点进去后发现网页提示<code>Download from your IP address is not allowed</code>，这说明你需要翻一下墙再去查看。</p>
+<p>正常进去后如下所示，windows就点.exe结尾的那个（我选择的是5.12.12）</p>
+<p><img src="image-20241026153723753.png" alt="image-20241026153723753"></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>打开安装程序前，需要把网络断掉，这样就会跳过注册登录的阶段。如果你忘记断网，那就断网后再次打开安装程序即可。</p>
+<ul>
+<li>选择安装路径</li>
+</ul>
+<p><img src="image-20241026153946391.png" alt="image-20241026153946391"></p>
+<ul>
+<li>选择安装组件</li>
+</ul>
+<p><img src="image-20241026154049090.png" alt="image-20241026154049090"></p>
+<p>这里从MSVC - Android都是对应的编译工具。MSVC和UWP都是windows专用的编译工具，例如win10 win11通知栏的通知就是UWP下的接口；MinGW是windows/linux都能使用的编译工具（我选择这个）；Android就是安卓。</p>
+<div class="note warning">
+            <p><strong>注意！</strong></p><p>不同Qt版本需要使用特定版本的编译工具，否则编译后执行会报错！</p>
+          </div>
+
+<p>其他的Qt组件根据你的需要来装即可，装的越多消耗磁盘空间当然也越多，可以按需安装。</p>
+<p>接下来一路next即可</p>
+<h2 id="环境变量配置"><a href="#环境变量配置" class="headerlink" title="环境变量配置"></a>环境变量配置</h2><p>环境变量就是一个操作系统级的变量，允许在任何目录下直接获得某个值（一般来说都是路径）。</p>
+<p><img src="image-20241124144421222.png" alt="image-20241124144421222"></p>
+<p>如图将第一行的bin和第二行的include对应路径配置到环境变量中（如果不会配置环境变量可参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/625914310">Microsoft Windows 11 | 设置 | 环境变量 | 教学 - 知乎</a>）。<br>请注意不要照抄路径，根据你实际的安装位置来确认，即在「安装」章节下的选择的安装路径。</p>
+<h3 id="编译器版本问题"><a href="#编译器版本问题" class="headerlink" title="编译器版本问题"></a>编译器版本问题</h3><p>不同qt版本可能依赖不同特定版本的编译器才能正常编译并执行可执行文件。例如这里的qt 5.12.12在安装选择时和这个文件夹名都显示了mingw73_64，意思是要求mingw 7.3版本64位编译器。如果你发现qt这个文件夹下为空，或者你之前安装过mingw编译器且配置了环境变量，那么<strong>大概率是无法编译后成功执行的</strong>。可能会报错：</p>
+<p><img src="image-20241124145208676.png" alt="image-20241124145208676"></p>
+<p>这就是编译器版本异常导致的。你可以主动去下载对应版本的编译器（[MinGW-w64 - for 32 and 64 bit Windows - Browse /Toolchains targetting Win64/Personal Builds/mingw-builds at SourceForge.net](<a target="_blank" rel="noopener" href="https://sourceforge.net/projects/mingw-w64/files/Toolchains">https://sourceforge.net/projects/mingw-w64/files/Toolchains</a> targetting Win64/Personal Builds/mingw-builds/)</p>
+<p>例如我想要装mingw73_64:</p>
+<ol>
+<li>打开7.3.0</li>
+</ol>
+<p><img src="image-20241124145422777.png" alt="image-20241124145422777"></p>
+<ol start="2">
+<li>选择thread</li>
+</ol>
+<p><img src="image-20241124150120223.png" alt="image-20241124150120223"></p>
+<p>win-thread使用windows thread api，posix-thread则是pthread可使用std::thread。不确定用哪个的话可以用posi-thread，移植性更好。</p>
+<ol start="3">
+<li>sjlj或seh</li>
+</ol>
+<p><img src="image-20241124150235057.png" alt="image-20241124150235057"></p>
+<p>使用差距不大，seh下载的人多，就下seh吧，如果想了解二者区别请自行查询。</p>
+<ol start="4">
+<li>解压<br>解压后会看到类似如下结构，把bin的路径放到环境变量中</li>
+</ol>
+<p><img src="image-20241124150337661.png" alt="image-20241124150337661"></p>
+<ol start="5">
+<li>环境变量</li>
+</ol>
+<p>如果你和我一样之前有其他的mingw编译器，可以像我一样直接在后面乱输几个字符破坏原有路径，这样之后恢复比较方便。<br>另一个方法是把新的环境变量放到旧的上面，环境变量是从上到下依次寻找的，找到目标后就会结束，所以如果多个环境变量同时能对应到目标路径时，最靠上的才生效。</p>
+<p><img src="image-20241124150509630.png" alt="image-20241124150509630"></p>
+<h2 id="CMake编译"><a href="#CMake编译" class="headerlink" title="CMake编译"></a>CMake编译</h2><p>正常新建build文件夹进行编译</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir build</span><br><span class="line"><span class="built_in">cd</span> build</span><br></pre></td></tr></table></figure>
+
+<p>因为图形化问题，cmake不会生成makefile，第一次cmake需要执行如下指令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmake .. -G <span class="string">&quot;Unix Makefiles&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>之后就能正常：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cmake ..</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<h2 id="其他注意事项"><a href="#其他注意事项" class="headerlink" title="其他注意事项"></a>其他注意事项</h2><ul>
+<li>配置完环境变量后需要点击确定按钮才能生效。</li>
+<li>配置完环境变量后需要重启vscode或重启已经开启的terminal才能使新环境变量生效。</li>
+<li>已经make失败后再修改环境变量，或者已经cmake后发现没有makefile，都需要将build下所有内容全部清空（也就是清空make cache和cmake cache），重新执行<code>cmake .. -G &quot;Unix Makefiles&quot;</code>和<code>make</code>才行。</li>
+</ul>
+<h1 id="小小demo"><a href="#小小demo" class="headerlink" title="小小demo"></a>小小demo</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">├─build</span><br><span class="line">├─c.cpp</span><br><span class="line">├─CMakeLists.txt</span><br></pre></td></tr></table></figure>
+
+<p>c.cpp：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;QtCore&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span>&#123;</span><br><span class="line">    <span class="function">QCoreApplication <span class="title">app</span><span class="params">(argc, argv)</span></span>;</span><br><span class="line">    QString a = <span class="string">&quot;hello world!&quot;</span>;</span><br><span class="line">    <span class="built_in">qInfo</span>() &lt;&lt; <span class="string">&quot;vscode x qt: &quot;</span> &lt;&lt; a;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>CMakeLists：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.8</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">project</span>(my_first_program)</span><br><span class="line"></span><br><span class="line"><span class="keyword">find_package</span>(Qt5 COMPONENTS Core Widgets REQUIRED)</span><br><span class="line"></span><br><span class="line"><span class="keyword">add_executable</span>(test_c c.cpp)</span><br><span class="line"><span class="keyword">set</span>(CMAKE_CXX_STANDARD <span class="number">11</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_link_libraries</span>(test_c</span><br><span class="line">    Qt5::Core</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>第一次编译并执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir build</span><br><span class="line"><span class="built_in">cd</span> build</span><br><span class="line">cmake .. -G <span class="string">&quot;Unix Makefiles&quot;</span></span><br><span class="line">make</span><br><span class="line">./test_c</span><br></pre></td></tr></table></figure>
+
+
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BC%96%E7%A8%8B/" rel="tag"># 编程</a>
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+              <a href="/tags/windows/" rel="tag"># windows</a>
+              <a href="/tags/Qt/" rel="tag"># Qt</a>
+              <a href="/tags/c/" rel="tag"># c++</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/%E5%90%88%E9%9B%86/%E7%BC%96%E7%A8%8B/Windows%E5%B9%B3%E5%8F%B0%E7%BC%96%E7%A8%8B%E6%A8%A1%E6%8B%9F%E9%94%AE%E9%BC%A0%E8%BE%93%E5%85%A5%20-%20%E6%B8%B8%E6%88%8F%E8%87%AA%E5%8A%A8%E5%8C%96/" rel="prev" title="Windows平台模拟键鼠输入">
+      <i class="fa fa-chevron-left"></i> Windows平台模拟键鼠输入
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Qt"><span class="nav-number">1.</span> <span class="nav-text">Qt</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Qt%E4%B8%8B%E8%BD%BD%E4%B8%8E%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">Qt下载与安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD"><span class="nav-number">2.1.</span> <span class="nav-text">下载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E9%85%8D%E7%BD%AE"><span class="nav-number">2.3.</span> <span class="nav-text">环境变量配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%99%A8%E7%89%88%E6%9C%AC%E9%97%AE%E9%A2%98"><span class="nav-number">2.3.1.</span> <span class="nav-text">编译器版本问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CMake%E7%BC%96%E8%AF%91"><span class="nav-number">2.4.</span> <span class="nav-text">CMake编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">2.5.</span> <span class="nav-text">其他注意事项</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B0%8F%E5%B0%8Fdemo"><span class="nav-number">3.</span> <span class="nav-text">小小demo</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="德依安"
+      src="/images/dd_avatar_chun.jpg">
+  <p class="site-author-name" itemprop="name">德依安</p>
+  <div class="site-description" itemprop="description">记录一些关于学习、生活、爱好的个人网站</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="mailto:DDG302@outlook.com" title="E-Mail → mailto:DDG302@outlook.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+    </div>
+  </aside>
+
+  <div id="sidebar-dimmer"></div>
+
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-coffee"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">德依安</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">85k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:50</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+<script src="https://unpkg.com/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
+
+<script>
+var options = {
+  bottom: '64px',
+  right: 'unset',
+  left: '32px',
+  time: '0.8s',
+  mixColor: 'rgba(100,100,100,0.7)',
+  backgroundColor: 'transparent',
+  buttonColorDark: '#100f2c',
+  buttonColorLight: '#fff',
+  saveInCookies: true,
+  label: '🌓',
+  autoMatchOsTheme: true
+}
+const darkmode = new Darkmode(options);
+window.darkmode = darkmode;
+darkmode.showWidget();
+</script>
+
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'Q1of9PPrAVcg9QlttMSouUyg-MdYXbMMI',
+      appKey     : 'aciBvoJbivUq2Wc1AMzKPUsI',
+      placeholder: "都看完了，不来说两句吗OvO",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://q1of9ppr.api.lncldglobal.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
